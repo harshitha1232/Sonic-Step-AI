@@ -3,52 +3,79 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SonicStep AI - Accessible Indoor Navigation Demo</title>
+  <title>SonicStep AI - Accessible Indoor Navigation</title>
   <style>
-    /* CSS Variables & Theme Configuration */
+    /* ==========================================================================
+       DESIGN SYSTEM - INDIGO / PURPLE & LAVENDER PALETTE
+       ========================================================================== */
     :root {
-      --bg-color: #070e1e;
-      --surface-color: #0f1c38;
-      --surface-accent: #172a54;
-      --text-primary: #ffffff;
-      --text-muted: #cbd5e1;
-      --accent-yellow: #ffe600;
-      --accent-yellow-text: #070e1e;
-      --accent-cyan: #38bdf8;
-      --accent-green: #22c55e;
-      --warning-bg: #431407;
-      --warning-border: #f97316;
-      --warning-text: #ffedd5;
-      --focus-ring: #ffe600;
-      --border-color: #26385e;
+      --bg-app: #F7F5FC;
+      --surface-card: #FFFFFF;
+      --surface-subtle: #F1EDFA;
+      --surface-elevated: #FFFFFF;
+      --primary-indigo: #4527A0;
+      --primary-dark: #311B92;
+      --primary-light: #EDE7F6;
+      --primary-hover: #371E86;
+      --accent-gold: #D97706;
+      --accent-gold-light: #FEF3C7;
+      --accent-cyan: #0284C7;
+      --text-main: #1E1B4B;
+      --text-muted: #5B5478;
+      --text-inverse: #FFFFFF;
+      --border-subtle: #E4DCF5;
+      --border-strong: #4527A0;
+      --focus-outline: #4527A0;
+      --danger-color: #DC2626;
+      --danger-bg: #FEF2F2;
+      --danger-border: #EF4444;
+      --success-color: #059669;
+      --success-bg: #ECFDF5;
+      --shadow-sm: 0 2px 6px rgba(49, 27, 146, 0.05);
+      --shadow-md: 0 6px 18px rgba(49, 27, 146, 0.08);
+      --shadow-lg: 0 12px 32px rgba(49, 27, 146, 0.12);
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-xl: 24px;
       --font-scale: 1rem;
       --min-touch-target: 48px;
-      --transition-speed: 0.2s;
+      --transition-base: 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    /* High Contrast Mode */
+    /* Ultra High Contrast Preset */
     [data-contrast="ultra"] {
-      --bg-color: #000000;
-      --surface-color: #0a0a0a;
-      --surface-accent: #1a1a1a;
-      --text-primary: #ffffff;
-      --text-muted: #e2e8f0;
-      --accent-yellow: #ffff00;
-      --accent-yellow-text: #000000;
-      --accent-cyan: #00ffff;
-      --accent-green: #00ff66;
-      --warning-bg: #2b0000;
-      --warning-border: #ff3333;
-      --warning-text: #ffffff;
-      --focus-ring: #ffff00;
-      --border-color: #ffffff;
+      --bg-app: #000000;
+      --surface-card: #0F0F0F;
+      --surface-subtle: #1C1C1C;
+      --surface-elevated: #141414;
+      --primary-indigo: #FFFF00;
+      --primary-dark: #000000;
+      --primary-light: #2A2A00;
+      --primary-hover: #E6E600;
+      --accent-gold: #FFFF00;
+      --accent-cyan: #00FFFF;
+      --text-main: #FFFFFF;
+      --text-muted: #E2E8F0;
+      --text-inverse: #000000;
+      --border-subtle: #FFFFFF;
+      --border-strong: #FFFF00;
+      --focus-outline: #FFFF00;
+      --danger-color: #FF4444;
+      --danger-bg: #300000;
+      --danger-border: #FF4444;
+      --success-color: #00FF66;
+      --success-bg: #003311;
+      --shadow-sm: none;
+      --shadow-md: none;
+      --shadow-lg: none;
     }
 
     /* Font Size Presets */
     [data-font-size="large"] { --font-scale: 1.15rem; }
     [data-font-size="xlarge"] { --font-scale: 1.3rem; }
 
-    /* Prefers Reduced Motion */
+    /* Reduced Motion */
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after {
         animation-duration: 0.001ms !important;
@@ -64,31 +91,33 @@
       transition-duration: 0.001ms !important;
     }
 
-    /* Base Elements */
+    /* Base Reset */
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
     }
 
+    html {
+      scroll-behavior: smooth;
+    }
+
     body {
-      background-color: var(--bg-color);
-      color: var(--text-primary);
+      background-color: var(--bg-app);
+      color: var(--text-main);
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      font-size: calc(1.125rem * var(--font-scale)); /* Min 18px */
+      font-size: calc(1.125rem * var(--font-scale)); /* 18px minimum base */
       line-height: 1.6;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
     }
 
-    /* Accessible Focus Ring */
     :focus-visible {
-      outline: 4px solid var(--focus-ring);
-      outline-offset: 4px;
+      outline: 3px solid var(--focus-outline);
+      outline-offset: 3px;
     }
 
-    /* Screen Reader Only */
     .sr-only {
       position: absolute;
       width: 1px;
@@ -101,612 +130,262 @@
       border: 0;
     }
 
-    /* Skip Link */
+    /* Skip to Content Link */
     .skip-link {
       position: absolute;
-      top: -60px;
-      left: 10px;
-      background: var(--accent-yellow);
-      color: var(--accent-yellow-text);
-      padding: 12px 20px;
-      font-weight: bold;
-      z-index: 9999;
-      border-radius: 4px;
+      top: -70px;
+      left: 14px;
+      background: var(--primary-indigo);
+      color: #FFFFFF;
+      padding: 14px 22px;
+      font-weight: 700;
+      z-index: 99999;
+      border-radius: var(--radius-sm);
       text-decoration: none;
+      box-shadow: var(--shadow-md);
       transition: top 0.2s ease;
     }
     .skip-link:focus {
-      top: 10px;
+      top: 14px;
     }
 
-    /* Header */
+    /* ==========================================================================
+       HEADER & NAVIGATION BAR
+       ========================================================================== */
     .app-header {
-      background-color: var(--surface-color);
-      border-bottom: 2px solid var(--border-color);
-      padding: 16px 20px;
+      background-color: var(--surface-card);
+      border-bottom: 1px solid var(--border-subtle);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: var(--shadow-sm);
     }
-    .header-top {
+    .header-inner {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 12px 20px;
       display: flex;
-      flex-wrap: wrap;
       align-items: center;
       justify-content: space-between;
       gap: 16px;
-      max-width: 1200px;
-      margin: 0 auto;
+      flex-wrap: wrap;
     }
-    .brand-container {
+    .brand-link {
       display: flex;
       align-items: center;
-      gap: 14px;
+      gap: 12px;
+      text-decoration: none;
+      color: inherit;
     }
-    .logo-icon {
+    .brand-logo-svg {
       width: 44px;
       height: 44px;
       flex-shrink: 0;
     }
-    .brand-titles h1 {
-      font-size: calc(1.5rem * var(--font-scale));
+    .brand-title-wrap h1 {
+      font-size: calc(1.35rem * var(--font-scale));
       font-weight: 800;
+      color: var(--primary-dark);
       letter-spacing: -0.02em;
-      line-height: 1.2;
+      line-height: 1.15;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .brand-tagline {
+      font-size: calc(0.85rem * var(--font-scale));
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+    .badge-demo {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      background-color: var(--accent-gold-light);
+      color: var(--accent-gold);
+      border: 1px solid var(--accent-gold);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .header-actions {
       display: flex;
       align-items: center;
       gap: 10px;
       flex-wrap: wrap;
     }
-    .tagline {
-      font-size: calc(0.95rem * var(--font-scale));
-      color: var(--text-muted);
-      font-weight: 500;
-    }
-    .badge {
-      display: inline-block;
-      padding: 4px 10px;
-      border-radius: 999px;
-      font-size: 0.75rem;
-      font-weight: 800;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-    }
-    .badge-demo {
-      background-color: var(--accent-yellow);
-      color: var(--accent-yellow-text);
-    }
 
-    .header-actions {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    /* Buttons */
-    button {
+    /* Common Button Styles */
+    button, .btn-link {
       font-family: inherit;
       font-size: calc(1rem * var(--font-scale));
       font-weight: 700;
-      padding: 12px 20px;
+      padding: 12px 22px;
       min-height: var(--min-touch-target);
-      border-radius: 8px;
+      border-radius: var(--radius-md);
       border: 2px solid transparent;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 10px;
-      transition: background-color var(--transition-speed), transform var(--transition-speed), border-color var(--transition-speed);
+      gap: 8px;
+      transition: background-color var(--transition-base), transform var(--transition-base), border-color var(--transition-base), box-shadow var(--transition-base);
       text-decoration: none;
+      box-sizing: border-box;
+      line-height: 1.2;
     }
-    button:active {
+    button:active, .btn-link:active {
       transform: scale(0.98);
     }
     .btn-primary {
-      background-color: var(--accent-yellow);
-      color: var(--accent-yellow-text);
-      border-color: var(--accent-yellow);
+      background-color: var(--primary-indigo);
+      color: #FFFFFF;
+      border-color: var(--primary-indigo);
     }
     .btn-primary:hover {
-      background-color: #ecd500;
+      background-color: var(--primary-hover);
+      border-color: var(--primary-hover);
     }
     .btn-secondary {
-      background-color: var(--surface-accent);
-      color: var(--text-primary);
-      border-color: var(--border-color);
+      background-color: var(--primary-light);
+      color: var(--primary-dark);
+      border-color: var(--border-subtle);
     }
     .btn-secondary:hover {
-      background-color: #20396f;
-    }
-    .btn-help {
-      background-color: #dc2626;
-      color: #ffffff;
-      border-color: #ef4444;
-    }
-    .btn-help:hover {
-      background-color: #b91c1c;
+      background-color: #E1D7F5;
+      border-color: var(--primary-indigo);
     }
     .btn-outline {
       background-color: transparent;
-      color: var(--text-primary);
-      border-color: var(--border-color);
+      color: var(--primary-dark);
+      border-color: var(--border-subtle);
     }
     .btn-outline:hover {
-      background-color: var(--surface-accent);
+      background-color: var(--surface-subtle);
+      border-color: var(--primary-indigo);
     }
-    .btn-success {
-      background-color: var(--accent-green);
-      color: #000000;
+    .btn-help {
+      background-color: var(--danger-color);
+      color: #FFFFFF;
+      border-color: var(--danger-color);
     }
-    .btn-danger {
-      background-color: #e11d48;
-      color: #ffffff;
-    }
-
-    /* Notice banner */
-    .demo-notice-bar {
-      background-color: rgba(255, 230, 0, 0.1);
-      border-bottom: 1px solid rgba(255, 230, 0, 0.25);
-      padding: 10px 20px;
-      font-size: calc(0.85rem * var(--font-scale));
-      color: var(--text-muted);
-      text-align: center;
-    }
-    .demo-notice-bar strong {
-      color: var(--accent-yellow);
+    .btn-help:hover {
+      background-color: #B91C1C;
     }
 
-    /* Main Container */
-    main {
-      flex: 1;
-      max-width: 1200px;
-      width: 100%;
+    /* ==========================================================================
+       HERO SECTION
+       ========================================================================== */
+    .hero-section {
+      background: linear-gradient(180deg, #FFFFFF 0%, var(--surface-subtle) 100%);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 48px 20px 40px;
+    }
+    .hero-inner {
+      max-width: 1040px;
       margin: 0 auto;
-      padding: 24px 20px 60px;
+      text-align: center;
       display: flex;
       flex-direction: column;
-      gap: 28px;
-    }
-
-    /* Section Headings */
-    .section-title {
-      font-size: calc(1.3rem * var(--font-scale));
-      margin-bottom: 14px;
-      display: flex;
       align-items: center;
-      gap: 10px;
-      border-bottom: 2px solid var(--border-color);
-      padding-bottom: 8px;
+      gap: 20px;
     }
-
-    /* Destination Buttons Grid */
-    .destinations-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 14px;
-    }
-    .dest-btn {
-      min-height: 72px;
-      padding: 16px;
-      background-color: var(--surface-color);
-      border: 2px solid var(--border-color);
-      color: var(--text-primary);
-      text-align: left;
-      flex-direction: column;
-      align-items: flex-start;
-      justify-content: center;
-      position: relative;
-    }
-    .dest-btn:hover {
-      background-color: var(--surface-accent);
-      border-color: var(--accent-yellow);
-    }
-    .dest-btn.active {
-      background-color: var(--surface-accent);
-      border-color: var(--accent-yellow);
-      box-shadow: 0 0 0 2px var(--accent-yellow);
-    }
-    .dest-title {
-      font-size: calc(1.1rem * var(--font-scale));
-      font-weight: 800;
-      color: var(--accent-yellow);
-      display: flex;
+    .hero-pill-badge {
+      display: inline-flex;
       align-items: center;
       gap: 8px;
-    }
-    .dest-sub {
+      padding: 6px 14px;
+      border-radius: 999px;
+      background-color: var(--primary-light);
+      color: var(--primary-dark);
       font-size: calc(0.85rem * var(--font-scale));
-      color: var(--text-muted);
-      font-weight: 500;
+      font-weight: 700;
+      border: 1px solid var(--border-subtle);
     }
-
-    /* Warning Banner for Hazard */
-    .hazard-banner {
-      background-color: var(--warning-bg);
-      border: 3px solid var(--warning-border);
-      color: var(--warning-text);
-      padding: 18px 20px;
-      border-radius: 10px;
-      display: none;
-      flex-direction: column;
-      gap: 12px;
+    .hero-title {
+      font-size: calc(2.4rem * var(--font-scale));
+      font-weight: 900;
+      color: var(--primary-dark);
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+      max-width: 820px;
     }
-    .hazard-banner.visible {
-      display: flex;
-    }
-    .hazard-header {
-      display: flex;
-      align-items: center;
-      gap: 12px;
+    .hero-subtitle {
       font-size: calc(1.2rem * var(--font-scale));
-      font-weight: 800;
+      color: var(--text-muted);
+      max-width: 760px;
+      line-height: 1.5;
     }
-    .hazard-actions {
+    .hero-cta-group {
       display: flex;
+      gap: 14px;
       flex-wrap: wrap;
-      gap: 12px;
+      justify-content: center;
       margin-top: 6px;
     }
-
-    /* Live Navigation Card */
-    .nav-card {
-      background-color: var(--surface-color);
-      border: 3px solid var(--border-color);
-      border-radius: 12px;
-      padding: 24px;
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
+    .btn-hero-primary {
+      min-height: 56px;
+      padding: 14px 30px;
+      font-size: calc(1.1rem * var(--font-scale));
+      box-shadow: 0 4px 14px rgba(69, 39, 160, 0.25);
     }
-    .nav-card-header {
+
+    /* Live System Status Strip */
+    .status-ribbon {
       display: flex;
       flex-wrap: wrap;
-      justify-content: space-between;
-      align-items: center;
       gap: 12px;
-      border-bottom: 1px solid var(--border-color);
-      padding-bottom: 14px;
-    }
-    .dest-target-text {
-      font-size: calc(1.15rem * var(--font-scale));
-      font-weight: 700;
-    }
-
-    /* Instruction Box (Large accessible typography) */
-    .instruction-box {
-      background-color: var(--surface-accent);
-      border-left: 8px solid var(--accent-yellow);
-      padding: 24px;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      gap: 20px;
-    }
-    .direction-badge {
-      width: 64px;
-      height: 64px;
-      border-radius: 50%;
-      background-color: var(--accent-yellow);
-      color: var(--accent-yellow-text);
-      display: flex;
-      align-items: center;
       justify-content: center;
-      flex-shrink: 0;
-    }
-    .direction-badge svg {
-      width: 36px;
-      height: 36px;
-    }
-    .instruction-content {
-      flex: 1;
-    }
-    .instruction-step-num {
-      font-size: calc(0.9rem * var(--font-scale));
-      font-weight: 800;
-      color: var(--accent-cyan);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-bottom: 4px;
-    }
-    .instruction-text {
-      font-size: calc(1.4rem * var(--font-scale));
-      font-weight: 800;
-      line-height: 1.35;
-      color: var(--text-primary);
-    }
-
-    /* Progress bar */
-    .progress-wrapper {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    .progress-info {
-      display: flex;
-      justify-content: space-between;
-      font-size: calc(0.95rem * var(--font-scale));
-      font-weight: 700;
-      color: var(--text-muted);
-    }
-    .progress-bar-outer {
+      margin-top: 14px;
       width: 100%;
-      height: 16px;
-      background-color: var(--surface-accent);
+      max-width: 880px;
+    }
+    .status-chip {
+      background-color: var(--surface-card);
+      border: 1px solid var(--border-subtle);
       border-radius: 999px;
-      overflow: hidden;
-      border: 1px solid var(--border-color);
-    }
-    .progress-bar-inner {
-      height: 100%;
-      width: 0%;
-      background-color: var(--accent-yellow);
-      transition: width var(--transition-speed) ease;
-    }
-
-    /* Navigation Controls Button Bar */
-    .nav-controls-bar {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-    }
-
-    /* Audio and Speech Controls */
-    .audio-speech-bar {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      align-items: center;
-      padding-top: 14px;
-      border-top: 1px solid var(--border-color);
-    }
-
-    /* Map Layout */
-    .map-container {
-      background-color: var(--surface-color);
-      border: 2px solid var(--border-color);
-      border-radius: 12px;
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
-    .map-svg-wrap {
-      width: 100%;
-      border-radius: 8px;
-      overflow: hidden;
-      background-color: #060c18;
-      border: 1px solid var(--border-color);
-      touch-action: manipulation;
-    }
-    .map-legend {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 16px;
-      padding: 8px 4px;
-      font-size: calc(0.85rem * var(--font-scale));
-      color: var(--text-muted);
-    }
-    .legend-item {
-      display: flex;
+      padding: 6px 14px;
+      font-size: calc(0.82rem * var(--font-scale));
+      display: inline-flex;
       align-items: center;
       gap: 8px;
+      font-weight: 600;
+      color: var(--text-main);
+      box-shadow: var(--shadow-sm);
     }
-    .legend-dot {
-      width: 14px;
-      height: 14px;
+    .status-indicator-dot {
+      width: 9px;
+      height: 9px;
       border-radius: 50%;
-    }
-
-    /* Step-by-Step Instructions List */
-    .steps-list {
-      list-style-type: none;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-top: 8px;
-    }
-    .step-item {
-      background-color: var(--surface-color);
-      border: 2px solid var(--border-color);
-      border-radius: 8px;
-      padding: 14px 18px;
-      display: flex;
-      align-items: flex-start;
-      gap: 14px;
-      transition: border-color var(--transition-speed);
-    }
-    .step-item.current {
-      border-color: var(--accent-yellow);
-      background-color: var(--surface-accent);
-      font-weight: bold;
-    }
-    .step-item.visited {
-      opacity: 0.7;
-    }
-    .step-item-num {
-      background-color: var(--surface-accent);
-      color: var(--accent-yellow);
-      border: 1px solid var(--accent-yellow);
-      min-width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 800;
-      font-size: 0.9rem;
+      background-color: var(--success-color);
       flex-shrink: 0;
     }
-    .step-item.current .step-item-num {
-      background-color: var(--accent-yellow);
-      color: var(--accent-yellow-text);
+    .status-indicator-dot.pulse {
+      box-shadow: 0 0 0 0 rgba(5, 150, 105, 0.7);
+      animation: statusPulse 2s infinite;
+    }
+    @keyframes statusPulse {
+      0% { box-shadow: 0 0 0 0 rgba(5, 150, 105, 0.7); }
+      70% { box-shadow: 0 0 0 6px rgba(5, 150, 105, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(5, 150, 105, 0); }
     }
 
-    /* Directional Audio Panel */
-    .audio-test-panel {
-      background-color: var(--surface-color);
-      border: 2px solid var(--border-color);
-      border-radius: 12px;
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
-    .audio-test-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 12px;
-    }
-    .audio-note {
-      font-size: calc(0.85rem * var(--font-scale));
-      color: var(--text-muted);
-      border-left: 3px solid var(--accent-cyan);
-      padding-left: 12px;
-    }
-
-    /* Dialogs / Modals */
-    .modal-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background-color: rgba(0, 0, 0, 0.82);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 10000;
-      padding: 20px;
-    }
-    .modal-overlay.active {
-      display: flex;
-    }
-    .modal-content {
-      background-color: var(--surface-color);
-      border: 3px solid var(--border-color);
-      border-radius: 12px;
-      max-width: 640px;
-      width: 100%;
-      max-height: 90vh;
-      overflow-y: auto;
-      padding: 28px;
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-      position: relative;
-    }
-    .modal-title {
-      font-size: calc(1.4rem * var(--font-scale));
-      font-weight: 800;
-      color: var(--accent-yellow);
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .modal-body {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    /* Settings form elements */
-    .settings-group {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      border-bottom: 1px solid var(--border-color);
-      padding-bottom: 14px;
-    }
-    .settings-group label {
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      cursor: pointer;
-    }
-    .settings-group select,
-    .settings-group input[type="range"] {
-      padding: 10px;
-      border-radius: 6px;
-      background-color: var(--surface-accent);
-      border: 2px solid var(--border-color);
-      color: var(--text-primary);
-      font-size: 1rem;
-      min-height: var(--min-touch-target);
-    }
-    .toggle-checkbox {
-      width: 24px;
-      height: 24px;
-      cursor: pointer;
-      accent-color: var(--accent-yellow);
-    }
-
-    /* Footer */
-    footer {
-      background-color: var(--surface-color);
-      border-top: 1px solid var(--border-color);
-      padding: 20px;
-      text-align: center;
-      font-size: calc(0.85rem * var(--font-scale));
-      color: var(--text-muted);
-    }
-  </style>
-</head>
-<body data-contrast="standard" data-font-size="normal" data-reduced-motion="false">
-  <!-- Accessible Skip Link -->
-  <a href="#main-content" class="skip-link">Skip to Navigation Content</a>
-
-  <!-- ARIA Live Regions for Screen Reader Announcements -->
-  <div id="aria-assertive" class="sr-only" aria-live="assertive" aria-atomic="true"></div>
-  <div id="aria-polite" class="sr-only" aria-live="polite" aria-atomic="true"></div>
-
-  <!-- Header -->
-  <header class="app-header" role="banner">
-    <div class="header-top">
-      <div class="brand-container">
-        <!-- Audio-wave logo inline SVG -->
-        <svg class="logo-icon" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <circle cx="50" cy="50" r="46" fill="#0f1c38" stroke="#ffe600" stroke-width="4"/>
-          <path d="M22 50 L28 42 L28 58 L22 50 Z" fill="#ffe600" />
-          <line x1="36" y1="36" x2="36" y2="64" stroke="#ffe600" stroke-width="6" stroke-linecap="round"/>
-          <line x1="46" y1="24" x2="46" y2="76" stroke="#38bdf8" stroke-width="6" stroke-linecap="round"/>
-          <line x1="56" y1="18" x2="56" y2="82" stroke="#ffe600" stroke-width="6" stroke-linecap="round"/>
-          <line x1="66" y1="30" x2="66" y2="70" stroke="#38bdf8" stroke-width="6" stroke-linecap="round"/>
-          <line x1="76" y1="40" x2="76" y2="60" stroke="#ffe600" stroke-width="6" stroke-linecap="round"/>
-        </svg>
-        <div class="brand-titles">
-          <h1>
-            SonicStep AI
-            <span class="badge badge-demo">Demo Mode</span>
-          </h1>
-          <p class="tagline">Hear Your Way. Navigate Independently.</p>
-        </div>
-      </div>
-      <div class="header-actions">
-        <button id="btn-open-help" class="btn-help" aria-haspopup="dialog" aria-expanded="false">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
-          Need Help?
-        </button>
-        <button id="btn-open-settings" class="btn-secondary" aria-haspopup="dialog" aria-expanded="false">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-          Settings
-        </button>
-      </div>
-    </div>
-  </header>
-
-  <!-- About SonicStep AI Card -->
-  <style>
+    /* ==========================================================================
+       ABOUT CARD SECTION (#about-box)
+       ========================================================================== */
     #about-box {
-      background-color: #ffffff;
+      background-color: #FFFFFF;
       border: 2px solid #4527A0;
       border-radius: 16px;
-      padding: 20px;
-      box-shadow: 0 4px 18px rgba(69, 39, 160, 0.15);
+      padding: 24px;
+      box-shadow: var(--shadow-md);
       color: #311B92;
       font-size: 18px;
       line-height: 1.6;
-      max-width: 720px;
+      max-width: 760px;
       width: calc(100% - 40px);
-      margin: 20px auto;
+      margin: 28px auto 10px;
       box-sizing: border-box;
     }
     #about-box h2 {
@@ -751,7 +430,7 @@
     .about-controls {
       display: flex;
       flex-wrap: wrap;
-      gap: 12px;
+      gap: 10px;
       align-items: center;
     }
     .about-btn {
@@ -769,12 +448,9 @@
       border: 2px solid #4527A0;
       box-sizing: border-box;
     }
-    .about-btn:active {
-      transform: scale(0.98);
-    }
     .about-btn-read {
       background-color: #4527A0;
-      color: #ffffff;
+      color: #FFFFFF;
     }
     .about-btn-read:hover {
       background-color: #311B92;
@@ -786,8 +462,539 @@
     .about-btn-toggle:hover {
       background-color: #D1C4E9;
     }
-  </style>
 
+    /* ==========================================================================
+       MAIN CONTENT CONTAINER
+       ========================================================================== */
+    main {
+      flex: 1;
+      max-width: 1240px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 24px 20px 60px;
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+
+    .section-title {
+      font-size: calc(1.3rem * var(--font-scale));
+      color: var(--primary-dark);
+      font-weight: 800;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* ==========================================================================
+       DESTINATION SELECTION BUTTONS
+       ========================================================================== */
+    .destinations-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 14px;
+    }
+    .dest-btn {
+      min-height: 84px;
+      padding: 16px;
+      background-color: var(--surface-card);
+      border: 2px solid var(--border-subtle);
+      color: var(--text-main);
+      text-align: left;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: center;
+      position: relative;
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+    }
+    .dest-btn:hover {
+      background-color: var(--surface-subtle);
+      border-color: var(--primary-indigo);
+    }
+    .dest-btn.active {
+      background-color: var(--primary-light);
+      border-color: var(--primary-indigo);
+      box-shadow: 0 0 0 2px var(--primary-indigo), var(--shadow-md);
+    }
+    .dest-title {
+      font-size: calc(1.1rem * var(--font-scale));
+      font-weight: 800;
+      color: var(--primary-dark);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .dest-sub {
+      font-size: calc(0.85rem * var(--font-scale));
+      color: var(--text-muted);
+      font-weight: 500;
+      margin-top: 2px;
+    }
+
+    /* ==========================================================================
+       SIMULATED HAZARD WARNING BANNER
+       ========================================================================== */
+    .hazard-banner {
+      background-color: var(--danger-bg);
+      border: 2px solid var(--danger-border);
+      color: #991B1B;
+      padding: 20px;
+      border-radius: var(--radius-lg);
+      display: none;
+      flex-direction: column;
+      gap: 12px;
+      box-shadow: var(--shadow-md);
+    }
+    .hazard-banner.visible {
+      display: flex;
+    }
+    .hazard-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: calc(1.2rem * var(--font-scale));
+      font-weight: 800;
+      color: var(--danger-color);
+    }
+    .hazard-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 4px;
+    }
+
+    /* ==========================================================================
+       TWO-COLUMN CENTERPIECE WORKSPACE: MAP + LIVE CONTROL PANEL
+       ========================================================================== */
+    .navigation-workspace {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 24px;
+      align-items: start;
+    }
+    @media (max-width: 960px) {
+      .navigation-workspace {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Map Card Container */
+    .map-card {
+      background-color: var(--surface-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      box-shadow: var(--shadow-md);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .map-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .map-svg-wrap {
+      width: 100%;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      background-color: #0A1128;
+      border: 1px solid var(--border-subtle);
+      box-shadow: inset 0 2px 8px rgba(0,0,0,0.4);
+    }
+    .map-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      padding: 4px;
+      font-size: calc(0.85rem * var(--font-scale));
+      color: var(--text-muted);
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .legend-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    /* Navigation Controls Card */
+    .nav-card {
+      background-color: var(--surface-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      box-shadow: var(--shadow-md);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .nav-card-header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 14px;
+    }
+    .dest-target-text {
+      font-size: calc(1.2rem * var(--font-scale));
+      font-weight: 800;
+      color: var(--primary-dark);
+    }
+
+    /* High-Visibility Instruction Box */
+    .instruction-box {
+      background-color: var(--surface-subtle);
+      border-left: 8px solid var(--primary-indigo);
+      padding: 22px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      box-shadow: var(--shadow-sm);
+    }
+    .direction-badge {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background-color: var(--primary-indigo);
+      color: #FFFFFF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 4px 10px rgba(69, 39, 160, 0.3);
+    }
+    .direction-badge svg {
+      width: 34px;
+      height: 34px;
+    }
+    .instruction-content {
+      flex: 1;
+    }
+    .instruction-step-num {
+      font-size: calc(0.9rem * var(--font-scale));
+      font-weight: 800;
+      color: var(--primary-indigo);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 4px;
+    }
+    .instruction-text {
+      font-size: calc(1.35rem * var(--font-scale));
+      font-weight: 800;
+      line-height: 1.35;
+      color: var(--text-main);
+    }
+
+    /* Progress Indicator */
+    .progress-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .progress-info {
+      display: flex;
+      justify-content: space-between;
+      font-size: calc(0.9rem * var(--font-scale));
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+    .progress-bar-outer {
+      width: 100%;
+      height: 14px;
+      background-color: var(--surface-subtle);
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid var(--border-subtle);
+    }
+    .progress-bar-inner {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--primary-indigo) 0%, #6D28D9 100%);
+      transition: width var(--transition-base) ease;
+    }
+
+    /* Controls Buttons Grid */
+    .nav-controls-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 10px;
+    }
+
+    /* Audio and Speech Bar */
+    .audio-speech-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      padding-top: 16px;
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    /* ==========================================================================
+       ROUTE INSTRUCTIONS LIST
+       ========================================================================== */
+    .steps-list {
+      list-style-type: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 8px;
+    }
+    .step-item {
+      background-color: var(--surface-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 14px 18px;
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      transition: border-color var(--transition-base), background-color var(--transition-base);
+      box-shadow: var(--shadow-sm);
+    }
+    .step-item.current {
+      border: 2px solid var(--primary-indigo);
+      background-color: var(--surface-subtle);
+      font-weight: 700;
+    }
+    .step-item.visited {
+      opacity: 0.65;
+    }
+    .step-item-num {
+      background-color: var(--primary-light);
+      color: var(--primary-dark);
+      border: 1px solid var(--primary-indigo);
+      min-width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 0.9rem;
+      flex-shrink: 0;
+    }
+    .step-item.current .step-item-num {
+      background-color: var(--primary-indigo);
+      color: #FFFFFF;
+    }
+
+    /* ==========================================================================
+       DIRECTIONAL AUDIO SOUNDCHECK CARD
+       ========================================================================== */
+    .audio-test-panel {
+      background-color: var(--surface-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      box-shadow: var(--shadow-md);
+    }
+    .audio-test-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+    }
+    .audio-note {
+      font-size: calc(0.88rem * var(--font-scale));
+      color: var(--text-muted);
+      border-left: 3px solid var(--primary-indigo);
+      padding-left: 14px;
+      line-height: 1.5;
+    }
+
+    /* ==========================================================================
+       MODALS / DIALOGS
+       ========================================================================== */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      padding: 20px;
+    }
+    .modal-overlay.active {
+      display: flex;
+    }
+    .modal-content {
+      background-color: var(--surface-card);
+      border: 2px solid var(--border-subtle);
+      border-radius: var(--radius-xl);
+      max-width: 640px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      box-shadow: var(--shadow-lg);
+    }
+    .modal-title {
+      font-size: calc(1.4rem * var(--font-scale));
+      font-weight: 800;
+      color: var(--primary-dark);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .modal-body {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .settings-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 14px;
+    }
+    .settings-group label {
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+    }
+    .settings-group select,
+    .settings-group input[type="range"] {
+      padding: 10px;
+      border-radius: var(--radius-sm);
+      background-color: var(--surface-subtle);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-main);
+      font-size: 1rem;
+      min-height: var(--min-touch-target);
+    }
+    .toggle-checkbox {
+      width: 24px;
+      height: 24px;
+      cursor: pointer;
+      accent-color: var(--primary-indigo);
+    }
+
+    /* Footer */
+    footer {
+      background-color: var(--surface-card);
+      border-top: 1px solid var(--border-subtle);
+      padding: 24px 20px;
+      text-align: center;
+      font-size: calc(0.88rem * var(--font-scale));
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body data-contrast="standard" data-font-size="normal" data-reduced-motion="false">
+  <!-- Accessible Skip Link -->
+  <a href="#main-content" class="skip-link">Skip to Navigation Content</a>
+
+  <!-- ARIA Live Regions for Screen Reader Announcements -->
+  <div id="aria-assertive" class="sr-only" aria-live="assertive" aria-atomic="true"></div>
+  <div id="aria-polite" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- Header -->
+  <header class="app-header" role="banner">
+    <div class="header-inner">
+      <a href="#main-content" class="brand-link" aria-label="SonicStep AI Home">
+        <!-- Audio-wave logo inline SVG -->
+        <svg class="brand-logo-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <circle cx="50" cy="50" r="46" fill="#EDE7F6" stroke="#4527A0" stroke-width="4"/>
+          <path d="M22 50 L28 42 L28 58 L22 50 Z" fill="#4527A0" />
+          <line x1="36" y1="36" x2="36" y2="64" stroke="#4527A0" stroke-width="6" stroke-linecap="round"/>
+          <line x1="46" y1="24" x2="46" y2="76" stroke="#0284C7" stroke-width="6" stroke-linecap="round"/>
+          <line x1="56" y1="18" x2="56" y2="82" stroke="#4527A0" stroke-width="6" stroke-linecap="round"/>
+          <line x1="66" y1="30" x2="66" y2="70" stroke="#0284C7" stroke-width="6" stroke-linecap="round"/>
+          <line x1="76" y1="40" x2="76" y2="60" stroke="#4527A0" stroke-width="6" stroke-linecap="round"/>
+        </svg>
+        <div class="brand-title-wrap">
+          <h1>
+            SonicStep AI
+            <span class="badge-demo">Demo Mode</span>
+          </h1>
+          <p class="brand-tagline">Hear Your Way. Navigate Indoors Independently.</p>
+        </div>
+      </a>
+      <div class="header-actions">
+        <button id="btn-open-help" class="btn-help" aria-haspopup="dialog" aria-expanded="false">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+          Need Help?
+        </button>
+        <button id="btn-open-settings" class="btn-secondary" aria-haspopup="dialog" aria-expanded="false">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          Settings
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero-section" aria-labelledby="hero-heading">
+    <div class="hero-inner">
+      <div class="hero-pill-badge">
+        <span class="status-indicator-dot pulse"></span>
+        <span>Interactive Wayfinding Prototype &bull; Sample Station</span>
+      </div>
+      <h1 id="hero-heading" class="hero-title">
+        SonicStep AI
+      </h1>
+      <p class="hero-subtitle">
+        An accessible, voice-guided indoor navigation assistant for blind and visually impaired travelers. Experience turn-by-turn speech, directional stereo audio, and automated detour routing.
+      </p>
+      <div class="hero-cta-group">
+        <a href="#demo-section" class="btn-primary btn-hero-primary">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+          Try Navigation Demo
+        </a>
+        <a href="#about-box" class="btn-secondary">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+          About The Project
+        </a>
+      </div>
+
+      <!-- Live Supported Capabilities Status Bar -->
+      <div class="status-ribbon" role="region" aria-label="System status">
+        <div class="status-chip">
+          <span class="status-indicator-dot"></span>
+          <span>Dijkstra Waypoint Routing</span>
+        </div>
+        <div class="status-chip">
+          <span class="status-indicator-dot"></span>
+          <span>Web Speech Voice Guide</span>
+        </div>
+        <div class="status-chip">
+          <span class="status-indicator-dot"></span>
+          <span>Directional Stereo Audio</span>
+        </div>
+        <div class="status-chip" title="Simulated hazard detection in demo prototype">
+          <span class="status-indicator-dot" style="background-color: var(--accent-gold);"></span>
+          <span>Simulated Hazard Alerts</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- About SonicStep AI Card (#about-box) -->
   <section id="about-box" aria-labelledby="about-title">
     <div class="about-header">
       <h2 id="about-title">About SonicStep AI</h2>
@@ -827,68 +1034,14 @@
     </div>
   </section>
 
-  <script>
-    (function initAboutBox() {
-      const btnRead = document.getElementById('btn-about-read');
-      const btnToggle = document.getElementById('btn-about-toggle');
-      const details = document.getElementById('about-details');
-
-      if (btnToggle && details) {
-        btnToggle.addEventListener('click', function() {
-          const isExpanded = btnToggle.getAttribute('aria-expanded') === 'true';
-          btnToggle.setAttribute('aria-expanded', isExpanded ? 'false' : 'true');
-          details.style.display = isExpanded ? 'none' : 'block';
-        });
-      }
-
-      if (btnRead) {
-        let isReading = false;
-        btnRead.addEventListener('click', function() {
-          if (!('speechSynthesis' in window)) {
-            alert('Speech synthesis is not supported on this device.');
-            return;
-          }
-          if (isReading && window.speechSynthesis.speaking) {
-            window.speechSynthesis.cancel();
-            isReading = false;
-            btnRead.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg> Read aloud';
-            return;
-          }
-
-          window.speechSynthesis.cancel();
-          const aboutContent = `About SonicStep AI. The problem: Blind and visually impaired people often struggle to move through large, crowded indoor places such as railway stations, bus stops, hospitals and airports. GPS is unreliable indoors, signs are hard to access, and asking strangers for directions again and again reduces independence. Our solution: SonicStep AI is a simple, voice-controlled navigation assistant that runs in a smartphone browser. The user opens the app, says "Start navigation", and a voice guide gives short instructions like "Walk straight", "Turn left" and "You have reached the Help Desk". No special hardware or expensive sensors are needed. How it works: Map shows the map of the place where the person is standing, plus a station layout with the route highlighted. Voice: everything is spoken aloud and the app is controlled by voice commands such as "start navigation", "stop navigation", "repeat" and "help". Camera: the rear camera watches the path ahead and warns about a possibly blocked path (experimental). Directional sound: left, centre and right audio cues support the spoken directions. Hazards: simulated warnings for blocked corridors, slippery floors, stairs and restricted areas, with an alternative route when one exists. Help: a "Need Help?" button guides the user to the Help Desk and reminds them to contact station staff. Who it is for: Blind and visually impaired passengers first, and also railway and bus station staff, accessibility organisations, caregivers and public infrastructure authorities. Important note: This is a demo prototype with a predefined sample station and simulated navigation. It is not a real indoor positioning system and the camera assist is experimental. It supports, but does not replace, a white cane, a guide dog or help from station staff.`;
-
-          const utterance = new SpeechSynthesisUtterance(aboutContent);
-          utterance.rate = (window.AppState && window.AppState.speechRate) ? window.AppState.speechRate : 1.0;
-          utterance.lang = 'en-US';
-
-          utterance.onstart = function() {
-            isReading = true;
-            btnRead.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg> Stop reading';
-          };
-          utterance.onend = function() {
-            isReading = false;
-            btnRead.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg> Read aloud';
-          };
-          utterance.onerror = function() {
-            isReading = false;
-            btnRead.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg> Read aloud';
-          };
-
-          window.speechSynthesis.speak(utterance);
-        });
-      }
-    })();
-  </script>
-
-  <!-- Main Content -->
+  <!-- Main Navigation Centerpiece -->
   <main id="main-content" role="main">
-    
-    <!-- 1. Destinations Selection -->
-    <section aria-labelledby="heading-destinations">
+
+    <!-- Destination Selection -->
+    <section id="demo-section" aria-labelledby="heading-destinations">
       <h2 id="heading-destinations" class="section-title">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><polygon points="12 8 8 12 12 16 12 8"></polygon></svg>
-        Select Destination
+        Select Station Destination
       </h2>
       <nav class="destinations-grid" aria-label="Available Station Destinations">
         <button class="dest-btn" data-dest-id="ticket_counter" aria-pressed="false">
@@ -914,7 +1067,7 @@
       </nav>
     </section>
 
-    <!-- 2. Simulated Hazard Alert Banner -->
+    <!-- Simulated Hazard Alert Banner -->
     <div id="hazard-alert-banner" class="hazard-banner" role="alert" aria-live="assertive">
       <div class="hazard-header">
         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
@@ -932,204 +1085,192 @@
       </div>
     </div>
 
-    <!-- 3. Active Navigation Card -->
-    <section class="nav-card" aria-labelledby="heading-nav-status">
-      <div class="nav-card-header">
-        <div>
-          <h2 id="heading-nav-status" class="dest-target-text">Destination: None Selected</h2>
-          <p id="route-summary-text" class="dest-sub">Choose a destination above to calculate route.</p>
+    <!-- Centerpiece Workspace: Map + Navigation Control Panel -->
+    <div class="navigation-workspace">
+      
+      <!-- Centerpiece Map -->
+      <section class="map-card" aria-labelledby="heading-station-map">
+        <div class="map-header-row">
+          <h2 id="heading-station-map" class="section-title" style="margin-bottom:0;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg>
+            Station Map &amp; Highlighted Route
+          </h2>
+          <span class="badge-demo">Predefined Layout</span>
         </div>
-        <div id="nav-badge-state" class="badge" style="background-color: var(--surface-accent); color: var(--text-muted);">
-          Ready
-        </div>
-      </div>
 
-      <!-- Current Step Box -->
-      <div class="instruction-box" aria-live="assertive" id="active-instruction-region">
-        <div id="instruction-icon-badge" class="direction-badge" aria-hidden="true">
-          <!-- Default straight icon -->
-          <svg id="dir-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="12" y1="19" x2="12" y2="5"></line>
-            <polyline points="5 12 12 5 19 12"></polyline>
+        <div class="map-svg-wrap">
+          <svg id="station-map-svg" viewBox="0 0 800 520" width="100%" height="auto" role="img" aria-label="Predefined Station Corridor Layout and Current Route">
+            <defs>
+              <pattern id="station-grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#162544" stroke-width="1"/>
+              </pattern>
+              <filter id="glow-filter" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="4" result="blur" />
+                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+              </filter>
+            </defs>
+
+            <!-- Map Background -->
+            <rect width="800" height="520" fill="#0A1128" />
+            <rect width="800" height="520" fill="url(#station-grid)" />
+
+            <!-- Station Perimeter -->
+            <rect x="40" y="20" width="720" height="480" rx="16" fill="none" stroke="#26385E" stroke-width="3" stroke-dasharray="8 6"/>
+
+            <!-- Corridors Base (Thick navigable lanes) -->
+            <g id="map-corridors-base" stroke="#1E293B" stroke-width="26" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="400" y1="470" x2="400" y2="50" />
+              <line x1="200" y1="370" x2="600" y2="370" />
+              <line x1="200" y1="370" x2="160" y2="250" />
+              <line x1="160" y1="250" x2="260" y2="150" />
+              <line x1="400" y1="250" x2="260" y2="150" />
+              <line x1="400" y1="250" x2="540" y2="150" />
+              <line x1="600" y1="370" x2="640" y2="250" />
+              <line x1="640" y1="250" x2="540" y2="150" />
+              <line x1="260" y1="150" x2="160" y2="70" />
+              <line x1="400" y1="150" x2="160" y2="70" />
+              <line x1="400" y1="150" x2="640" y2="70" />
+              <line x1="540" y1="150" x2="640" y2="70" />
+            </g>
+
+            <!-- Active Computed Route Highlight Line -->
+            <polyline id="map-active-route-line" points="" fill="none" stroke="#FBBF24" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="16 10"/>
+
+            <!-- Simulated Hazards Overlay -->
+            <g id="map-hazards-layer"></g>
+
+            <!-- Waypoint Junctions -->
+            <g id="map-junctions-layer"></g>
+
+            <!-- Destination Gate Hubs -->
+            <g id="map-destinations-layer"></g>
+
+            <!-- Main Entrance Marker -->
+            <g transform="translate(400, 470)">
+              <circle r="16" fill="#059669" stroke="#FFFFFF" stroke-width="3"/>
+              <text y="32" text-anchor="middle" fill="#FFFFFF" font-size="14" font-weight="bold">Entrance</text>
+            </g>
+
+            <!-- Current User Step Marker -->
+            <g id="user-location-marker" transform="translate(400, 470)" filter="url(#glow-filter)" style="display:none;">
+              <circle r="20" fill="#FBBF24" opacity="0.35">
+                <animate attributeName="r" values="16;26;16" dur="1.8s" repeatCount="indefinite" />
+                <animate attributeName="opacity" values="0.6;0.1;0.6" dur="1.8s" repeatCount="indefinite" />
+              </circle>
+              <circle r="12" fill="#FBBF24" stroke="#0F172A" stroke-width="3"/>
+              <circle r="4" fill="#0F172A"/>
+              <text y="-20" text-anchor="middle" fill="#FBBF24" font-size="14" font-weight="900" stroke="#0F172A" stroke-width="3" paint-order="stroke fill">YOU</text>
+            </g>
           </svg>
         </div>
-        <div class="instruction-content">
-          <div id="instruction-step-label" class="instruction-step-num">Step 0 of 0</div>
-          <div id="current-instruction-text" class="instruction-text">
-            Select a destination above to start accessible station navigation.
+
+        <!-- Map Legend -->
+        <div class="map-legend">
+          <div class="legend-item">
+            <span class="legend-dot" style="background-color: #059669;"></span>
+            <span>Entrance (Start)</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-dot" style="background-color: #FBBF24;"></span>
+            <span>Highlighted Route</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-dot" style="background-color: #0284C7;"></span>
+            <span>Destination</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-dot" style="background-color: #DC2626;"></span>
+            <span>Simulated Hazard</span>
           </div>
         </div>
-      </div>
+      </section>
 
-      <!-- Step Progress Bar -->
-      <div class="progress-wrapper">
-        <div class="progress-info">
-          <span id="progress-percentage-label">Progress: 0%</span>
-          <span id="progress-step-count">0 of 0 steps completed</span>
+      <!-- Live Navigation & Control Panel -->
+      <section class="nav-card" aria-labelledby="heading-nav-status">
+        <div class="nav-card-header">
+          <div>
+            <h2 id="heading-nav-status" class="dest-target-text">Destination: None Selected</h2>
+            <p id="route-summary-text" class="dest-sub">Select a destination above to compute guidance.</p>
+          </div>
+          <div id="nav-badge-state" class="badge-demo">
+            Ready
+          </div>
         </div>
-        <div class="progress-bar-outer" role="progressbar" id="main-progress-bar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Route progress">
-          <div id="progress-fill" class="progress-bar-inner"></div>
+
+        <!-- Active Instruction Box -->
+        <div class="instruction-box" aria-live="assertive" id="active-instruction-region">
+          <div id="instruction-icon-badge" class="direction-badge" aria-hidden="true">
+            <svg id="dir-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="19" x2="12" y2="5"></line>
+              <polyline points="5 12 12 5 19 12"></polyline>
+            </svg>
+          </div>
+          <div class="instruction-content">
+            <div id="instruction-step-label" class="instruction-step-num">Step 0 of 0</div>
+            <div id="current-instruction-text" class="instruction-text">
+              Select any station destination above to begin accessible guidance.
+            </div>
+          </div>
         </div>
-      </div>
 
-      <!-- Navigation Control Buttons -->
-      <div class="nav-controls-bar" role="toolbar" aria-label="Navigation controls">
-        <button id="btn-start-nav" class="btn-primary" disabled>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-          Start Navigation
-        </button>
-        <button id="btn-pause-nav" class="btn-secondary" disabled>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
-          Pause
-        </button>
-        <button id="btn-next-step" class="btn-primary" disabled>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
-          Next Instruction
-        </button>
-        <button id="btn-prev-step" class="btn-secondary" disabled>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"></polyline></svg>
-          Previous
-        </button>
-        <button id="btn-stop-nav" class="btn-outline" disabled>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>
-          Stop &amp; Reset
-        </button>
-      </div>
-
-      <!-- Speech and Audio Toolbar -->
-      <div class="audio-speech-bar" role="toolbar" aria-label="Speech and audio controls">
-        <button id="btn-repeat-speech" class="btn-secondary">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 4v6h6"></path><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
-          Repeat Instruction
-        </button>
-        <button id="btn-toggle-speech" class="btn-secondary" aria-pressed="true">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
-          Speech: ON
-        </button>
-        <button id="btn-toggle-sound" class="btn-secondary" aria-pressed="true">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg>
-          Directional Chimes: ON
-        </button>
-      </div>
-      <div id="speech-fallback-msg" class="audio-note" style="display:none; color: var(--accent-yellow);">
-        Speech synthesis is not supported in this browser. Step instructions will remain visible as high-contrast text.
-      </div>
-    </section>
-
-    <!-- 4. Interactive Top-Down Station Map -->
-    <section class="map-container" aria-labelledby="heading-station-map">
-      <h2 id="heading-station-map" class="section-title">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg>
-        Station Map &amp; Routing
-      </h2>
-      <div class="map-svg-wrap">
-        <svg id="station-map-svg" viewBox="0 0 800 520" width="100%" height="auto" role="img" aria-label="Predefined Station Corridor Layout and Current Route">
-          <defs>
-            <!-- Pattern for background grid -->
-            <pattern id="station-grid" width="40" height="40" patternUnits="userSpaceOnUse">
-              <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#162544" stroke-width="1"/>
-            </pattern>
-            <!-- Marker for active position pulse -->
-            <filter id="glow-filter" x="-20%" y="-20%" width="140%" height="140%">
-              <feGaussianBlur stdDeviation="4" result="blur" />
-              <feComposite in="SourceGraphic" in2="blur" operator="over" />
-            </filter>
-          </defs>
-
-          <!-- Background -->
-          <rect width="800" height="520" fill="#070e1e" />
-          <rect width="800" height="520" fill="url(#station-grid)" />
-
-          <!-- Station Building Outer Wall Outline -->
-          <rect x="40" y="20" width="720" height="480" rx="16" fill="none" stroke="#26385e" stroke-width="3" stroke-dasharray="8 6"/>
-
-          <!-- Corridors Group (Thick navigable paths) -->
-          <g id="map-corridors-base" stroke="#1a2e56" stroke-width="24" stroke-linecap="round" stroke-linejoin="round">
-            <!-- Main Spine -->
-            <line x1="400" y1="470" x2="400" y2="50" />
-            <!-- Lower Concourse -->
-            <line x1="200" y1="370" x2="600" y2="370" />
-            <!-- Mid Bypass Corridors -->
-            <line x1="200" y1="370" x2="160" y2="250" />
-            <line x1="160" y1="250" x2="260" y2="150" />
-            <line x1="400" y1="250" x2="260" y2="150" />
-            <line x1="400" y1="250" x2="540" y2="150" />
-            <line x1="600" y1="370" x2="640" y2="250" />
-            <line x1="640" y1="250" x2="540" y2="150" />
-            <!-- Upper Hallways -->
-            <line x1="260" y1="150" x2="160" y2="70" />
-            <line x1="400" y1="150" x2="160" y2="70" />
-            <line x1="400" y1="150" x2="640" y2="70" />
-            <line x1="540" y1="150" x2="640" y2="70" />
-          </g>
-
-          <!-- Active Computed Route Polyline -->
-          <polyline id="map-active-route-line" points="" fill="none" stroke="#ffe600" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="14 8"/>
-
-          <!-- Simulated Hazard Highlights -->
-          <g id="map-hazards-layer"></g>
-
-          <!-- Waypoints / Junctions -->
-          <g id="map-junctions-layer"></g>
-
-          <!-- Destination Rooms / Hubs -->
-          <g id="map-destinations-layer"></g>
-
-          <!-- Start Marker (Station Entrance) -->
-          <g transform="translate(400, 470)">
-            <circle r="16" fill="#22c55e" stroke="#ffffff" stroke-width="3"/>
-            <text y="32" text-anchor="middle" fill="#ffffff" font-size="14" font-weight="bold">Entrance</text>
-          </g>
-
-          <!-- Current User Step Position Marker -->
-          <g id="user-location-marker" transform="translate(400, 470)" filter="url(#glow-filter)" style="display:none;">
-            <circle r="18" fill="#ffe600" opacity="0.35">
-              <animate attributeName="r" values="14;24;14" dur="1.8s" repeatCount="indefinite" />
-              <animate attributeName="opacity" values="0.6;0.1;0.6" dur="1.8s" repeatCount="indefinite" />
-            </circle>
-            <circle r="12" fill="#ffe600" stroke="#070e1e" stroke-width="3"/>
-            <circle r="4" fill="#070e1e"/>
-            <text y="-20" text-anchor="middle" fill="#ffe600" font-size="14" font-weight="900" stroke="#070e1e" stroke-width="3" paint-order="stroke fill">YOU</text>
-          </g>
-        </svg>
-      </div>
-
-      <!-- Map Legend -->
-      <div class="map-legend">
-        <div class="legend-item">
-          <span class="legend-dot" style="background-color: #22c55e;"></span>
-          <span>Start (Main Entrance)</span>
+        <!-- Progress Bar -->
+        <div class="progress-wrapper">
+          <div class="progress-info">
+            <span id="progress-percentage-label">Progress: 0%</span>
+            <span id="progress-step-count">0 of 0 steps completed</span>
+          </div>
+          <div class="progress-bar-outer" role="progressbar" id="main-progress-bar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Route progress">
+            <div id="progress-fill" class="progress-bar-inner"></div>
+          </div>
         </div>
-        <div class="legend-item">
-          <span class="legend-dot" style="background-color: #ffe600;"></span>
-          <span>Active Route &amp; Current Step</span>
-        </div>
-        <div class="legend-item">
-          <span class="legend-dot" style="background-color: #38bdf8;"></span>
-          <span>Destination Gate</span>
-        </div>
-        <div class="legend-item">
-          <span class="legend-dot" style="background-color: #f97316;"></span>
-          <span>Simulated Hazard</span>
-        </div>
-      </div>
-    </section>
 
-    <!-- 5. Step-by-Step Directions Text List -->
-    <section aria-labelledby="heading-instructions-list">
-      <h2 id="heading-instructions-list" class="section-title">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
-        Numbered Route Instructions
-      </h2>
-      <ol id="route-steps-ol" class="steps-list" aria-label="Step by step navigation list">
-        <li class="step-item">
-          <span class="step-item-num">0</span>
-          <span>Select any station destination above to generate turn-by-turn guidance.</span>
-        </li>
-      </ol>
-    </section>
+        <!-- Navigation Controls Toolbar -->
+        <div class="nav-controls-bar" role="toolbar" aria-label="Navigation controls">
+          <button id="btn-start-nav" class="btn-primary" disabled>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+            Start
+          </button>
+          <button id="btn-next-step" class="btn-primary" disabled>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            Next Step
+          </button>
+          <button id="btn-prev-step" class="btn-secondary" disabled>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            Previous
+          </button>
+          <button id="btn-pause-nav" class="btn-secondary" disabled>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+            Pause
+          </button>
+          <button id="btn-stop-nav" class="btn-outline" disabled>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>
+            Stop
+          </button>
+        </div>
 
-    <!-- 6. Directional Audio Testing Panel -->
+        <!-- Speech & Audio Toolbar -->
+        <div class="audio-speech-bar" role="toolbar" aria-label="Speech and audio controls">
+          <button id="btn-repeat-speech" class="btn-secondary">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 4v6h6"></path><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
+            Repeat
+          </button>
+          <button id="btn-toggle-speech" class="btn-secondary" aria-pressed="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+            Speech: ON
+          </button>
+          <button id="btn-toggle-sound" class="btn-secondary" aria-pressed="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg>
+            Chimes: ON
+          </button>
+        </div>
+        <div id="speech-fallback-msg" class="audio-note" style="display:none; color: var(--danger-color);">
+          Web Speech API is not supported in this browser. Visual instructions remain fully operational.
+        </div>
+      </section>
+
+    </div>
+
+    <!-- Directional Audio Soundcheck Card -->
     <section class="audio-test-panel" aria-labelledby="heading-directional-audio">
       <h2 id="heading-directional-audio" class="section-title">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 18v-6a9 9 0 0 1 18 0v6"></path><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path></svg>
@@ -1150,8 +1291,22 @@
         </button>
       </div>
       <p class="audio-note">
-        <strong>Directional audio note:</strong> Directional audio uses ordinary stereo output and does not guarantee true 3D spatial hearing. Best experienced with headphones or balanced stereo speakers.
+        <strong>Directional audio note:</strong> Directional audio uses standard stereo output (via Web Audio StereoPannerNode) to assist orientation with Left, Centre, and Right cues. It does not guarantee true binaural 3D spatial positioning. Headphones recommended.
       </p>
+    </section>
+
+    <!-- Numbered Route Steps -->
+    <section aria-labelledby="heading-instructions-list">
+      <h2 id="heading-instructions-list" class="section-title">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+        Numbered Route Instructions
+      </h2>
+      <ol id="route-steps-ol" class="steps-list" aria-label="Step by step navigation list">
+        <li class="step-item">
+          <span class="step-item-num">0</span>
+          <span>Select any station destination above to generate turn-by-turn guidance.</span>
+        </li>
+      </ol>
     </section>
 
   </main>
@@ -1165,10 +1320,10 @@
       </h2>
       <div class="modal-body">
         <p>
-          Uniformed station assistants are on duty at the <strong>Help Desk (East Concourse)</strong> and at <strong>Platform 1</strong>.
+          Uniformed railway staff are stationed at the <strong>Help Desk (East Concourse)</strong> and at <strong>Platform 1</strong>.
         </p>
         <p>
-          If you need personal guidance, please call out to any nearby station official, or click the button below to guide you straight to the Help Desk.
+          If you need personal guidance or feel disoriented, please call out to any nearby station official or press the button below to guide you directly to the Help Desk.
         </p>
         <p class="audio-note">
           Notice: This application does not place automated emergency phone calls or broadcast external tracking data.
@@ -1194,12 +1349,12 @@
       </h2>
       <div class="modal-body">
         
-        <!-- High Contrast -->
+        <!-- High Contrast Palette -->
         <div class="settings-group">
           <label for="setting-contrast">
             <span>High Contrast Palette:</span>
             <select id="setting-contrast">
-              <option value="standard">Standard Navy &amp; Yellow</option>
+              <option value="standard">Standard Indigo &amp; Lavender</option>
               <option value="ultra">Ultra Black &amp; Yellow (Max Contrast)</option>
             </select>
           </label>
@@ -1388,12 +1543,12 @@
         osc.type = waveType;
         osc.frequency.setValueAtTime(freq, ctx.currentTime);
 
-        // Anti-click volume envelope
+        // Volume envelope
         gainNode.gain.setValueAtTime(0.001, ctx.currentTime);
         gainNode.gain.exponentialRampToValueAtTime(0.35, ctx.currentTime + 0.03);
         gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
 
-        // Check if StereoPannerNode is supported in browser
+        // Check StereoPannerNode support
         if (typeof ctx.createStereoPanner === 'function') {
           const panner = ctx.createStereoPanner();
           panner.pan.setValueAtTime(Math.max(-1, Math.min(1, panValue)), ctx.currentTime);
@@ -1417,18 +1572,14 @@
     function playDirectionCue(directionType) {
       if (!AppState.directionalAudioEnabled) return;
       if (directionType === 'left') {
-        // Two distinct left chimes (low-to-high) in left ear
         playDirectionTone(-1, 520, 0.18, 'sine');
         setTimeout(() => playDirectionTone(-1, 680, 0.22, 'sine'), 130);
       } else if (directionType === 'right') {
-        // Two distinct right chimes in right ear
         playDirectionTone(1, 740, 0.18, 'sine');
         setTimeout(() => playDirectionTone(1, 920, 0.22, 'sine'), 130);
       } else if (directionType === 'straight') {
-        // Centered warm chime
         playDirectionTone(0, 600, 0.28, 'triangle');
       } else if (directionType === 'arrival') {
-        // Melodic arrival chord
         playDirectionTone(0, 523.25, 0.2, 'sine');
         setTimeout(() => playDirectionTone(0, 659.25, 0.2, 'sine'), 120);
         setTimeout(() => playDirectionTone(0, 783.99, 0.35, 'sine'), 240);
@@ -1485,7 +1636,6 @@
       distances[startNodeId] = 0;
 
       while (unvisited.size > 0) {
-        // Find node with minimum distance
         let current = null;
         let minDistance = Infinity;
         for (const nodeId of unvisited) {
@@ -1500,16 +1650,14 @@
 
         unvisited.delete(current);
 
-        // Find neighbors
         STATION_EDGES.forEach(edge => {
           let neighbor = null;
           if (edge.u === current) neighbor = edge.v;
           else if (edge.v === current) neighbor = edge.u;
 
           if (neighbor && unvisited.has(neighbor)) {
-            // Check if this edge is blocked by simulated hazard
             if (edge.hazardId && blockedHazardIds.has(edge.hazardId)) {
-              return; // Skip blocked edge
+              return;
             }
             const alt = distances[current] + edge.dist;
             if (alt < distances[neighbor]) {
@@ -1520,7 +1668,6 @@
         });
       }
 
-      // Reconstruct path
       const path = [];
       let curr = targetNodeId;
       while (curr) {
@@ -1531,14 +1678,13 @@
       if (path.length > 0 && path[0] === startNodeId) {
         return path;
       }
-      return null; // No route found
+      return null;
     }
 
     /* ==========================================================================
        TURN DERIVATION & NATURAL INSTRUCTIONS BUILDER
        ========================================================================== */
     function deriveTurnType(v1, v2) {
-      // Calculate angle change in degrees
       const angle1 = Math.atan2(v1.y, v1.x);
       const angle2 = Math.atan2(v2.y, v2.x);
       let diff = (angle2 - angle1) * 180 / Math.PI;
@@ -1546,9 +1692,6 @@
       while (diff > 180) diff -= 360;
       while (diff < -180) diff += 360;
 
-      // In SVG coordinates where Y points down:
-      // Positive diff is a clockwise rotation (Turn Right)
-      // Negative diff is counter-clockwise rotation (Turn Left)
       if (Math.abs(diff) <= 32) return 'straight';
       if (diff > 32) return 'right';
       return 'left';
@@ -1558,7 +1701,6 @@
       if (!pathNodeIds || pathNodeIds.length === 0) return [];
       const instructions = [];
 
-      // Initial user orientation at entrance: facing forward/North (0, -1)
       let currentFacingVector = { x: 0, y: -1 };
 
       for (let i = 0; i < pathNodeIds.length - 1; i++) {
@@ -1595,7 +1737,6 @@
         });
       }
 
-      // Final arrival step
       const lastNode = STATION_NODES[pathNodeIds[pathNodeIds.length - 1]];
       instructions.push({
         stepIndex: instructions.length,
@@ -1610,7 +1751,6 @@
       return instructions;
     }
 
-    // Detect if a route passes through an active hazard
     function checkRouteForHazard(pathNodeIds) {
       if (!AppState.hazardsEnabled || !pathNodeIds) return null;
       for (let i = 0; i < pathNodeIds.length - 1; i++) {
@@ -1640,9 +1780,9 @@
           const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
           circle.setAttribute('cx', node.x);
           circle.setAttribute('cy', node.y);
-          circle.setAttribute('r', '8');
-          circle.setAttribute('fill', '#26385e');
-          circle.setAttribute('stroke', '#38bdf8');
+          circle.setAttribute('r', '7');
+          circle.setAttribute('fill', '#334155');
+          circle.setAttribute('stroke', '#64748B');
           circle.setAttribute('stroke-width', '2');
           junctionsLayer.appendChild(circle);
         } else if (node.type === 'destination') {
@@ -1650,19 +1790,19 @@
           g.setAttribute('transform', `translate(${node.x}, ${node.y})`);
 
           const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-          rect.setAttribute('x', '-24');
-          rect.setAttribute('y', '-24');
-          rect.setAttribute('width', '48');
-          rect.setAttribute('height', '48');
+          rect.setAttribute('x', '-22');
+          rect.setAttribute('y', '-22');
+          rect.setAttribute('width', '44');
+          rect.setAttribute('height', '44');
           rect.setAttribute('rx', '8');
-          rect.setAttribute('fill', '#101c38');
-          rect.setAttribute('stroke', '#38bdf8');
+          rect.setAttribute('fill', '#1E293B');
+          rect.setAttribute('stroke', '#0284C7');
           rect.setAttribute('stroke-width', '3');
 
           const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
           text.setAttribute('y', '36');
           text.setAttribute('text-anchor', 'middle');
-          text.setAttribute('fill', '#ffffff');
+          text.setAttribute('fill', '#FFFFFF');
           text.setAttribute('font-size', '13');
           text.setAttribute('font-weight', 'bold');
           text.textContent = node.name;
@@ -1692,17 +1832,16 @@
         const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
         g.setAttribute('transform', `translate(${mx}, ${my})`);
 
-        // Hazard warning sign
         const poly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
         poly.setAttribute('points', '0,-14 14,12 -14,12');
-        poly.setAttribute('fill', '#f97316');
-        poly.setAttribute('stroke', '#ffffff');
+        poly.setAttribute('fill', '#DC2626');
+        poly.setAttribute('stroke', '#FFFFFF');
         poly.setAttribute('stroke-width', '2');
 
         const excl = document.createElementNS('http://www.w3.org/2000/svg', 'text');
         excl.setAttribute('y', '8');
         excl.setAttribute('text-anchor', 'middle');
-        excl.setAttribute('fill', '#000000');
+        excl.setAttribute('fill', '#FFFFFF');
         excl.setAttribute('font-size', '13');
         excl.setAttribute('font-weight', '900');
         excl.textContent = '!';
@@ -1725,7 +1864,6 @@
         return;
       }
 
-      // Build points string for polyline
       const pts = pathNodeIds.map(id => {
         const node = STATION_NODES[id];
         return `${node.x},${node.y}`;
@@ -1733,7 +1871,6 @@
 
       routeLine.setAttribute('points', pts);
 
-      // Position current user step marker
       if (currentStepCoord) {
         userMarker.setAttribute('transform', `translate(${currentStepCoord.x}, ${currentStepCoord.y})`);
         userMarker.style.display = 'inline';
@@ -1779,13 +1916,13 @@
       // No destination selected
       if (!AppState.selectedDestId || !AppState.activeRoute) {
         targetLabel.textContent = "Destination: None Selected";
-        summaryLabel.textContent = "Choose a destination above to calculate route.";
+        summaryLabel.textContent = "Select a destination above to compute guidance.";
         stateBadge.textContent = "Ready";
-        stateBadge.style.backgroundColor = "var(--surface-accent)";
+        stateBadge.style.backgroundColor = "var(--surface-subtle)";
         stateBadge.style.color = "var(--text-muted)";
 
         stepLabel.textContent = "Step 0 of 0";
-        textElem.textContent = "Select a destination above to start accessible station navigation.";
+        textElem.textContent = "Select any station destination above to begin accessible guidance.";
         updateIconBadge('straight');
 
         progressBar.setAttribute('aria-valuenow', '0');
@@ -1812,24 +1949,24 @@
       const currentInst = instructions[currIdx] || instructions[0];
 
       targetLabel.textContent = `Destination: ${dest.name}`;
-      summaryLabel.textContent = `Route: ${AppState.activeRoute.path.length} waypoints &bull; Total distance approx. ${AppState.activeRoute.totalDist}m`;
+      summaryLabel.textContent = `Route: ${AppState.activeRoute.path.length} waypoints &bull; Total approx. ${AppState.activeRoute.totalDist}m`;
 
-      // Navigation Status Controls State
+      // Status Badge & Controls
       if (AppState.navStatus === 'IDLE') {
         stateBadge.textContent = "Route Ready";
-        stateBadge.style.backgroundColor = "var(--accent-yellow)";
-        stateBadge.style.color = "var(--accent-yellow-text)";
+        stateBadge.style.backgroundColor = "var(--primary-light)";
+        stateBadge.style.color = "var(--primary-dark)";
 
         btnStart.disabled = false;
-        btnStart.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> Start Navigation`;
+        btnStart.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> Start`;
         btnPause.disabled = true;
         btnNext.disabled = true;
         btnPrev.disabled = true;
         btnStop.disabled = false;
       } else if (AppState.navStatus === 'NAVIGATING') {
         stateBadge.textContent = "Navigating";
-        stateBadge.style.backgroundColor = "var(--accent-cyan)";
-        stateBadge.style.color = "#000000";
+        stateBadge.style.backgroundColor = "var(--success-bg)";
+        stateBadge.style.color = "var(--success-color)";
 
         btnStart.disabled = true;
         btnPause.disabled = false;
@@ -1839,8 +1976,8 @@
         btnStop.disabled = false;
       } else if (AppState.navStatus === 'PAUSED') {
         stateBadge.textContent = "Paused";
-        stateBadge.style.backgroundColor = "#eab308";
-        stateBadge.style.color = "#000000";
+        stateBadge.style.backgroundColor = "var(--accent-gold-light)";
+        stateBadge.style.color = "var(--accent-gold)";
 
         btnStart.disabled = true;
         btnPause.disabled = false;
@@ -1850,8 +1987,8 @@
         btnStop.disabled = false;
       } else if (AppState.navStatus === 'ARRIVED') {
         stateBadge.textContent = "Arrived";
-        stateBadge.style.backgroundColor = "var(--accent-green)";
-        stateBadge.style.color = "#000000";
+        stateBadge.style.backgroundColor = "var(--success-bg)";
+        stateBadge.style.color = "var(--success-color)";
 
         btnStart.disabled = true;
         btnPause.disabled = true;
@@ -1860,12 +1997,12 @@
         btnStop.disabled = false;
       }
 
-      // Step instruction and icon
+      // Step text and turn icon
       stepLabel.textContent = `Step ${currIdx + 1} of ${totalSteps}`;
       textElem.textContent = currentInst.text;
       updateIconBadge(currentInst.turnType);
 
-      // Progress bar calculations
+      // Progress bar
       const progressPercent = Math.round(((currIdx + 1) / totalSteps) * 100);
       progressBar.setAttribute('aria-valuenow', progressPercent);
       progressFill.style.width = `${progressPercent}%`;
@@ -1876,12 +2013,11 @@
       if (AppState.detectedHazard) {
         hazardBanner.classList.add('visible');
         hazardTitle.textContent = `Simulated Hazard: ${AppState.detectedHazard.title}`;
-        hazardDesc.textContent = `${AppState.detectedHazard.desc} An alternative route avoiding this section has been computed.`;
+        hazardDesc.textContent = `${AppState.detectedHazard.desc} An alternative route avoiding this corridor has been computed.`;
       } else {
         hazardBanner.classList.remove('visible');
       }
 
-      // Synchronize Map and Ordered list
       renderStepsList(instructions, currIdx);
       updateMapRouteVisual(AppState.activeRoute.path, currentInst.coord);
     }
@@ -1949,7 +2085,6 @@
 
       const dest = STATION_NODES[destId];
 
-      // 1. Calculate primary path without blocking hazards
       const primaryPath = calculateShortestPath('entrance', destId, new Set());
 
       if (!primaryPath) {
@@ -1957,7 +2092,6 @@
         return;
       }
 
-      // Check if primary path crosses an active hazard
       const detectedHazard = checkRouteForHazard(primaryPath);
       AppState.detectedHazard = detectedHazard;
 
@@ -1975,7 +2109,6 @@
         isAlternative: false
       };
 
-      // 2. Pre-calculate alternative route in case hazard is encountered
       if (detectedHazard) {
         const blockedSet = new Set([detectedHazard.id]);
         const altPath = calculateShortestPath('entrance', destId, blockedSet);
@@ -2097,13 +2230,8 @@
       const step = AppState.activeRoute.instructions[AppState.currentStepIndex];
       if (!step) return;
 
-      // 1. Play Directional stereo chime
       playDirectionCue(step.turnType);
-
-      // 2. Speak concise instruction
       speakText(step.text);
-
-      // 3. Update screen reader live region
       announceScreenReader(step.text, 'assertive');
     }
 
@@ -2116,12 +2244,123 @@
     }
 
     /* ==========================================================================
-       EVENT LISTENERS & ACCESSIBILITY HANDLERS
+       ABOUT BOX LOGIC
        ========================================================================== */
+    function initAboutBox() {
+      const btnRead = document.getElementById('btn-about-read');
+      const btnToggle = document.getElementById('btn-about-toggle');
+      const details = document.getElementById('about-details');
+
+      if (btnToggle && details) {
+        btnToggle.addEventListener('click', function() {
+          const isExpanded = btnToggle.getAttribute('aria-expanded') === 'true';
+          btnToggle.setAttribute('aria-expanded', isExpanded ? 'false' : 'true');
+          details.style.display = isExpanded ? 'none' : 'block';
+        });
+      }
+
+      if (btnRead) {
+        let isReading = false;
+        btnRead.addEventListener('click', function() {
+          if (!('speechSynthesis' in window)) {
+            alert('Speech synthesis is not supported on this device.');
+            return;
+          }
+          if (isReading && window.speechSynthesis.speaking) {
+            window.speechSynthesis.cancel();
+            isReading = false;
+            btnRead.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg> Read aloud';
+            return;
+          }
+
+          window.speechSynthesis.cancel();
+          const aboutContent = `About SonicStep AI. The problem: Blind and visually impaired people often struggle to move through large, crowded indoor places such as railway stations, bus stops, hospitals and airports. GPS is unreliable indoors, signs are hard to access, and asking strangers for directions again and again reduces independence. Our solution: SonicStep AI is a simple, voice-controlled navigation assistant that runs in a smartphone browser. The user opens the app, says "Start navigation", and a voice guide gives short instructions like "Walk straight", "Turn left" and "You have reached the Help Desk". No special hardware or expensive sensors are needed. How it works: Map shows the map of the place where the person is standing, plus a station layout with the route highlighted. Voice: everything is spoken aloud and the app is controlled by voice commands such as "start navigation", "stop navigation", "repeat" and "help". Camera: the rear camera watches the path ahead and warns about a possibly blocked path (experimental). Directional sound: left, centre and right audio cues support the spoken directions. Hazards: simulated warnings for blocked corridors, slippery floors, stairs and restricted areas, with an alternative route when one exists. Help: a "Need Help?" button guides the user to the Help Desk and reminds them to contact station staff. Who it is for: Blind and visually impaired passengers first, and also railway and bus station staff, accessibility organisations, caregivers and public infrastructure authorities. Important note: This is a demo prototype with a predefined sample station and simulated navigation. It is not a real indoor positioning system and the camera assist is experimental. It supports, but does not replace, a white cane, a guide dog or help from station staff.`;
+
+          const utterance = new SpeechSynthesisUtterance(aboutContent);
+          utterance.rate = (window.AppState && window.AppState.speechRate) ? window.AppState.speechRate : 1.0;
+          utterance.lang = 'en-US';
+
+          utterance.onstart = function() {
+            isReading = true;
+            btnRead.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg> Stop reading';
+          };
+          utterance.onend = function() {
+            isReading = false;
+            btnRead.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg> Read aloud';
+          };
+          utterance.onerror = function() {
+            isReading = false;
+            btnRead.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg> Read aloud';
+          };
+
+          window.speechSynthesis.speak(utterance);
+        });
+      }
+    }
+
+    /* ==========================================================================
+       OPTIONAL EXPERIMENTAL VOICE COMMAND LISTENER (SPEECH RECOGNITION)
+       ========================================================================== */
+    function initSpeechRecognition() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) return;
+
+      try {
+        const recognizer = new SpeechRecognition();
+        recognizer.continuous = true;
+        recognizer.interimResults = false;
+        recognizer.lang = 'en-US';
+
+        recognizer.onresult = (event) => {
+          const phrase = event.results[event.results.length - 1][0].transcript.trim().toLowerCase();
+          if (phrase.includes('start navigation') || phrase.includes('start')) {
+            startNavigation();
+          } else if (phrase.includes('next instruction') || phrase.includes('next')) {
+            nextStep();
+          } else if (phrase.includes('stop navigation') || phrase.includes('stop')) {
+            stopNavigation();
+          } else if (phrase.includes('repeat')) {
+            repeatCurrentStep();
+          } else if (phrase.includes('help')) {
+            openModal('modal-help');
+          }
+        };
+
+        // Don't auto-start without user interaction to respect autoplay policies
+      } catch (err) {
+        console.warn('Voice command recognition not initialized:', err);
+      }
+    }
+
+    /* ==========================================================================
+       MODAL CONTROLLERS & EVENT LISTENERS
+       ========================================================================== */
+    let previousActiveElement = null;
+
+    function openModal(modalId) {
+      previousActiveElement = document.activeElement;
+      const modal = document.getElementById(modalId);
+      if (modal) {
+        modal.classList.add('active');
+        const firstFocusable = modal.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+        if (firstFocusable) firstFocusable.focus();
+      }
+    }
+
+    function closeModal(modalId) {
+      const modal = document.getElementById(modalId);
+      if (modal) {
+        modal.classList.remove('active');
+        if (previousActiveElement) previousActiveElement.focus();
+      }
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
-      // 1. Render Map Static Elements
+      // 1. Render Map Infrastructure & Hazards
       renderMapInfrastructure();
       renderMapHazards();
+      initAboutBox();
+      initSpeechRecognition();
 
       // 2. Destination Buttons
       document.querySelectorAll('.dest-btn').forEach(button => {
@@ -2138,7 +2377,7 @@
       document.getElementById('btn-prev-step').addEventListener('click', prevStep);
       document.getElementById('btn-stop-nav').addEventListener('click', stopNavigation);
 
-      // 4. Speech and Audio Buttons
+      // 4. Speech & Audio Controls
       document.getElementById('btn-repeat-speech').addEventListener('click', repeatCurrentStep);
 
       const btnToggleSpeech = document.getElementById('btn-toggle-speech');
@@ -2158,7 +2397,7 @@
       btnToggleSound.addEventListener('click', () => {
         AppState.directionalAudioEnabled = !AppState.directionalAudioEnabled;
         btnToggleSound.setAttribute('aria-pressed', AppState.directionalAudioEnabled ? 'true' : 'false');
-        btnToggleSound.textContent = AppState.directionalAudioEnabled ? "Directional Chimes: ON" : "Directional Chimes: OFF";
+        btnToggleSound.textContent = AppState.directionalAudioEnabled ? "Chimes: ON" : "Chimes: OFF";
         document.getElementById('setting-sound-toggle').checked = AppState.directionalAudioEnabled;
         if (AppState.directionalAudioEnabled) {
           playDirectionCue('straight');
@@ -2187,28 +2426,9 @@
         speakText("Right channel test.");
       });
 
-      // 7. Modals: Help & Settings
+      // 7. Modals
       const modalHelp = document.getElementById('modal-help');
       const modalSettings = document.getElementById('modal-settings');
-      let previousActiveElement = null;
-
-      function openModal(modalId) {
-        previousActiveElement = document.activeElement;
-        const modal = document.getElementById(modalId);
-        if (modal) {
-          modal.classList.add('active');
-          const firstFocusable = modal.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
-          if (firstFocusable) firstFocusable.focus();
-        }
-      }
-
-      function closeModal(modalId) {
-        const modal = document.getElementById(modalId);
-        if (modal) {
-          modal.classList.remove('active');
-          if (previousActiveElement) previousActiveElement.focus();
-        }
-      }
 
       document.getElementById('btn-open-help').addEventListener('click', () => openModal('modal-help'));
       document.getElementById('btn-close-help').addEventListener('click', () => closeModal('modal-help'));
@@ -2221,11 +2441,11 @@
       document.getElementById('btn-open-settings').addEventListener('click', () => openModal('modal-settings'));
       document.getElementById('btn-close-settings').addEventListener('click', () => closeModal('modal-settings'));
 
-      // Close modal on escape key
+      // Close modal on Escape key
       window.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
-          if (modalHelp.classList.contains('active')) closeModal('modal-help');
-          if (modalSettings.classList.contains('active')) closeModal('modal-settings');
+          if (modalHelp && modalHelp.classList.contains('active')) closeModal('modal-help');
+          if (modalSettings && modalSettings.classList.contains('active')) closeModal('modal-settings');
         }
       });
 
@@ -2260,7 +2480,7 @@
       settingSound.addEventListener('change', (e) => {
         AppState.directionalAudioEnabled = e.target.checked;
         btnToggleSound.setAttribute('aria-pressed', AppState.directionalAudioEnabled ? 'true' : 'false');
-        btnToggleSound.textContent = AppState.directionalAudioEnabled ? "Directional Chimes: ON" : "Directional Chimes: OFF";
+        btnToggleSound.textContent = AppState.directionalAudioEnabled ? "Chimes: ON" : "Chimes: OFF";
       });
 
       const settingReducedMotion = document.getElementById('setting-reduced-motion');
@@ -2273,7 +2493,6 @@
       settingHazards.addEventListener('change', (e) => {
         AppState.hazardsEnabled = e.target.checked;
         renderMapHazards();
-        // Recalculate route if destination is active
         if (AppState.selectedDestId) {
           setDestination(AppState.selectedDestId, false);
         }
