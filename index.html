@@ -693,12 +693,193 @@
     </div>
   </header>
 
-  <!-- Honest Demo Disclaimer -->
-  <aside class="demo-notice-bar" aria-label="System notice">
-    <p>
-      <strong>Demo Notice:</strong> Predefined railway station simulation. Does not use real indoor positioning, GPS, or camera obstacle recognition.
-    </p>
-  </aside>
+  <!-- About SonicStep AI Card -->
+  <style>
+    #about-box {
+      background-color: #ffffff;
+      border: 2px solid #4527A0;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 4px 18px rgba(69, 39, 160, 0.15);
+      color: #311B92;
+      font-size: 18px;
+      line-height: 1.6;
+      max-width: 720px;
+      width: calc(100% - 40px);
+      margin: 20px auto;
+      box-sizing: border-box;
+    }
+    #about-box h2 {
+      color: #311B92;
+      font-size: 1.45rem;
+      font-weight: 800;
+      margin: 0;
+    }
+    #about-box h3 {
+      color: #4527A0;
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-top: 18px;
+      margin-bottom: 6px;
+    }
+    #about-box p {
+      color: #311B92;
+      font-size: 18px;
+      line-height: 1.6;
+      margin-bottom: 12px;
+    }
+    #about-box ul {
+      margin: 8px 0 16px 24px;
+      padding: 0;
+      color: #311B92;
+      font-size: 18px;
+      line-height: 1.6;
+    }
+    #about-box li {
+      margin-bottom: 8px;
+    }
+    .about-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid #D1C4E9;
+      padding-bottom: 14px;
+    }
+    .about-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+    }
+    .about-btn {
+      min-height: 56px;
+      padding: 12px 20px;
+      font-size: 18px;
+      font-weight: 700;
+      border-radius: 10px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background-color 0.2s, color 0.2s, transform 0.1s;
+      border: 2px solid #4527A0;
+      box-sizing: border-box;
+    }
+    .about-btn:active {
+      transform: scale(0.98);
+    }
+    .about-btn-read {
+      background-color: #4527A0;
+      color: #ffffff;
+    }
+    .about-btn-read:hover {
+      background-color: #311B92;
+    }
+    .about-btn-toggle {
+      background-color: #EDE7F6;
+      color: #311B92;
+    }
+    .about-btn-toggle:hover {
+      background-color: #D1C4E9;
+    }
+  </style>
+
+  <section id="about-box" aria-labelledby="about-title">
+    <div class="about-header">
+      <h2 id="about-title">About SonicStep AI</h2>
+      <div class="about-controls">
+        <button id="btn-about-read" type="button" class="about-btn about-btn-read">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+          Read aloud
+        </button>
+        <button id="btn-about-toggle" type="button" class="about-btn about-btn-toggle" aria-expanded="true" aria-controls="about-details">
+          Hide / Show details
+        </button>
+      </div>
+    </div>
+
+    <div id="about-details">
+      <h3>The problem</h3>
+      <p>Blind and visually impaired people often struggle to move through large, crowded indoor places such as railway stations, bus stops, hospitals and airports. GPS is unreliable indoors, signs are hard to access, and asking strangers for directions again and again reduces independence.</p>
+
+      <h3>Our solution</h3>
+      <p>SonicStep AI is a simple, voice-controlled navigation assistant that runs in a smartphone browser. The user opens the app, says "Start navigation", and a voice guide gives short instructions like "Walk straight", "Turn left" and "You have reached the Help Desk". No special hardware or expensive sensors are needed.</p>
+
+      <h3>How it works</h3>
+      <ul>
+        <li>Map: shows the map of the place where the person is standing, plus a station layout with the route highlighted.</li>
+        <li>Voice: everything is spoken aloud and the app is controlled by voice commands such as "start navigation", "stop navigation", "repeat" and "help".</li>
+        <li>Camera: the rear camera watches the path ahead and warns about a possibly blocked path (experimental).</li>
+        <li>Directional sound: left, centre and right audio cues support the spoken directions.</li>
+        <li>Hazards: simulated warnings for blocked corridors, slippery floors, stairs and restricted areas, with an alternative route when one exists.</li>
+        <li>Help: a "Need Help?" button guides the user to the Help Desk and reminds them to contact station staff.</li>
+      </ul>
+
+      <h3>Who it is for</h3>
+      <p>Blind and visually impaired passengers first, and also railway and bus station staff, accessibility organisations, caregivers and public infrastructure authorities.</p>
+
+      <h3>Important note</h3>
+      <p>This is a demo prototype with a predefined sample station and simulated navigation. It is not a real indoor positioning system and the camera assist is experimental. It supports, but does not replace, a white cane, a guide dog or help from station staff.</p>
+    </div>
+  </section>
+
+  <script>
+    (function initAboutBox() {
+      const btnRead = document.getElementById('btn-about-read');
+      const btnToggle = document.getElementById('btn-about-toggle');
+      const details = document.getElementById('about-details');
+
+      if (btnToggle && details) {
+        btnToggle.addEventListener('click', function() {
+          const isExpanded = btnToggle.getAttribute('aria-expanded') === 'true';
+          btnToggle.setAttribute('aria-expanded', isExpanded ? 'false' : 'true');
+          details.style.display = isExpanded ? 'none' : 'block';
+        });
+      }
+
+      if (btnRead) {
+        let isReading = false;
+        btnRead.addEventListener('click', function() {
+          if (!('speechSynthesis' in window)) {
+            alert('Speech synthesis is not supported on this device.');
+            return;
+          }
+          if (isReading && window.speechSynthesis.speaking) {
+            window.speechSynthesis.cancel();
+            isReading = false;
+            btnRead.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg> Read aloud';
+            return;
+          }
+
+          window.speechSynthesis.cancel();
+          const aboutContent = `About SonicStep AI. The problem: Blind and visually impaired people often struggle to move through large, crowded indoor places such as railway stations, bus stops, hospitals and airports. GPS is unreliable indoors, signs are hard to access, and asking strangers for directions again and again reduces independence. Our solution: SonicStep AI is a simple, voice-controlled navigation assistant that runs in a smartphone browser. The user opens the app, says "Start navigation", and a voice guide gives short instructions like "Walk straight", "Turn left" and "You have reached the Help Desk". No special hardware or expensive sensors are needed. How it works: Map shows the map of the place where the person is standing, plus a station layout with the route highlighted. Voice: everything is spoken aloud and the app is controlled by voice commands such as "start navigation", "stop navigation", "repeat" and "help". Camera: the rear camera watches the path ahead and warns about a possibly blocked path (experimental). Directional sound: left, centre and right audio cues support the spoken directions. Hazards: simulated warnings for blocked corridors, slippery floors, stairs and restricted areas, with an alternative route when one exists. Help: a "Need Help?" button guides the user to the Help Desk and reminds them to contact station staff. Who it is for: Blind and visually impaired passengers first, and also railway and bus station staff, accessibility organisations, caregivers and public infrastructure authorities. Important note: This is a demo prototype with a predefined sample station and simulated navigation. It is not a real indoor positioning system and the camera assist is experimental. It supports, but does not replace, a white cane, a guide dog or help from station staff.`;
+
+          const utterance = new SpeechSynthesisUtterance(aboutContent);
+          utterance.rate = (window.AppState && window.AppState.speechRate) ? window.AppState.speechRate : 1.0;
+          utterance.lang = 'en-US';
+
+          utterance.onstart = function() {
+            isReading = true;
+            btnRead.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg> Stop reading';
+          };
+          utterance.onend = function() {
+            isReading = false;
+            btnRead.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg> Read aloud';
+          };
+          utterance.onerror = function() {
+            isReading = false;
+            btnRead.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg> Read aloud';
+          };
+
+          window.speechSynthesis.speak(utterance);
+        });
+      }
+    })();
+  </script>
 
   <!-- Main Content -->
   <main id="main-content" role="main">
