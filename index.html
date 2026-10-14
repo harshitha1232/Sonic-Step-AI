@@ -1,0 +1,2106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SonicStep AI - Accessible Indoor Navigation Demo</title>
+  <style>
+    /* CSS Variables & Theme Configuration */
+    :root {
+      --bg-color: #070e1e;
+      --surface-color: #0f1c38;
+      --surface-accent: #172a54;
+      --text-primary: #ffffff;
+      --text-muted: #cbd5e1;
+      --accent-yellow: #ffe600;
+      --accent-yellow-text: #070e1e;
+      --accent-cyan: #38bdf8;
+      --accent-green: #22c55e;
+      --warning-bg: #431407;
+      --warning-border: #f97316;
+      --warning-text: #ffedd5;
+      --focus-ring: #ffe600;
+      --border-color: #26385e;
+      --font-scale: 1rem;
+      --min-touch-target: 48px;
+      --transition-speed: 0.2s;
+    }
+
+    /* High Contrast Mode */
+    [data-contrast="ultra"] {
+      --bg-color: #000000;
+      --surface-color: #0a0a0a;
+      --surface-accent: #1a1a1a;
+      --text-primary: #ffffff;
+      --text-muted: #e2e8f0;
+      --accent-yellow: #ffff00;
+      --accent-yellow-text: #000000;
+      --accent-cyan: #00ffff;
+      --accent-green: #00ff66;
+      --warning-bg: #2b0000;
+      --warning-border: #ff3333;
+      --warning-text: #ffffff;
+      --focus-ring: #ffff00;
+      --border-color: #ffffff;
+    }
+
+    /* Font Size Presets */
+    [data-font-size="large"] { --font-scale: 1.15rem; }
+    [data-font-size="xlarge"] { --font-scale: 1.3rem; }
+
+    /* Prefers Reduced Motion */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+      }
+    }
+    [data-reduced-motion="true"] *,
+    [data-reduced-motion="true"] *::before,
+    [data-reduced-motion="true"] *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+    }
+
+    /* Base Elements */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-primary);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-size: calc(1.125rem * var(--font-scale)); /* Min 18px */
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Accessible Focus Ring */
+    :focus-visible {
+      outline: 4px solid var(--focus-ring);
+      outline-offset: 4px;
+    }
+
+    /* Screen Reader Only */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    /* Skip Link */
+    .skip-link {
+      position: absolute;
+      top: -60px;
+      left: 10px;
+      background: var(--accent-yellow);
+      color: var(--accent-yellow-text);
+      padding: 12px 20px;
+      font-weight: bold;
+      z-index: 9999;
+      border-radius: 4px;
+      text-decoration: none;
+      transition: top 0.2s ease;
+    }
+    .skip-link:focus {
+      top: 10px;
+    }
+
+    /* Header */
+    .app-header {
+      background-color: var(--surface-color);
+      border-bottom: 2px solid var(--border-color);
+      padding: 16px 20px;
+    }
+    .header-top {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .brand-container {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .logo-icon {
+      width: 44px;
+      height: 44px;
+      flex-shrink: 0;
+    }
+    .brand-titles h1 {
+      font-size: calc(1.5rem * var(--font-scale));
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .tagline {
+      font-size: calc(0.95rem * var(--font-scale));
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .badge-demo {
+      background-color: var(--accent-yellow);
+      color: var(--accent-yellow-text);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    /* Buttons */
+    button {
+      font-family: inherit;
+      font-size: calc(1rem * var(--font-scale));
+      font-weight: 700;
+      padding: 12px 20px;
+      min-height: var(--min-touch-target);
+      border-radius: 8px;
+      border: 2px solid transparent;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: background-color var(--transition-speed), transform var(--transition-speed), border-color var(--transition-speed);
+      text-decoration: none;
+    }
+    button:active {
+      transform: scale(0.98);
+    }
+    .btn-primary {
+      background-color: var(--accent-yellow);
+      color: var(--accent-yellow-text);
+      border-color: var(--accent-yellow);
+    }
+    .btn-primary:hover {
+      background-color: #ecd500;
+    }
+    .btn-secondary {
+      background-color: var(--surface-accent);
+      color: var(--text-primary);
+      border-color: var(--border-color);
+    }
+    .btn-secondary:hover {
+      background-color: #20396f;
+    }
+    .btn-help {
+      background-color: #dc2626;
+      color: #ffffff;
+      border-color: #ef4444;
+    }
+    .btn-help:hover {
+      background-color: #b91c1c;
+    }
+    .btn-outline {
+      background-color: transparent;
+      color: var(--text-primary);
+      border-color: var(--border-color);
+    }
+    .btn-outline:hover {
+      background-color: var(--surface-accent);
+    }
+    .btn-success {
+      background-color: var(--accent-green);
+      color: #000000;
+    }
+    .btn-danger {
+      background-color: #e11d48;
+      color: #ffffff;
+    }
+
+    /* Notice banner */
+    .demo-notice-bar {
+      background-color: rgba(255, 230, 0, 0.1);
+      border-bottom: 1px solid rgba(255, 230, 0, 0.25);
+      padding: 10px 20px;
+      font-size: calc(0.85rem * var(--font-scale));
+      color: var(--text-muted);
+      text-align: center;
+    }
+    .demo-notice-bar strong {
+      color: var(--accent-yellow);
+    }
+
+    /* Main Container */
+    main {
+      flex: 1;
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 24px 20px 60px;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    /* Section Headings */
+    .section-title {
+      font-size: calc(1.3rem * var(--font-scale));
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 2px solid var(--border-color);
+      padding-bottom: 8px;
+    }
+
+    /* Destination Buttons Grid */
+    .destinations-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 14px;
+    }
+    .dest-btn {
+      min-height: 72px;
+      padding: 16px;
+      background-color: var(--surface-color);
+      border: 2px solid var(--border-color);
+      color: var(--text-primary);
+      text-align: left;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: center;
+      position: relative;
+    }
+    .dest-btn:hover {
+      background-color: var(--surface-accent);
+      border-color: var(--accent-yellow);
+    }
+    .dest-btn.active {
+      background-color: var(--surface-accent);
+      border-color: var(--accent-yellow);
+      box-shadow: 0 0 0 2px var(--accent-yellow);
+    }
+    .dest-title {
+      font-size: calc(1.1rem * var(--font-scale));
+      font-weight: 800;
+      color: var(--accent-yellow);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .dest-sub {
+      font-size: calc(0.85rem * var(--font-scale));
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    /* Warning Banner for Hazard */
+    .hazard-banner {
+      background-color: var(--warning-bg);
+      border: 3px solid var(--warning-border);
+      color: var(--warning-text);
+      padding: 18px 20px;
+      border-radius: 10px;
+      display: none;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .hazard-banner.visible {
+      display: flex;
+    }
+    .hazard-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: calc(1.2rem * var(--font-scale));
+      font-weight: 800;
+    }
+    .hazard-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 6px;
+    }
+
+    /* Live Navigation Card */
+    .nav-card {
+      background-color: var(--surface-color);
+      border: 3px solid var(--border-color);
+      border-radius: 12px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .nav-card-header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 14px;
+    }
+    .dest-target-text {
+      font-size: calc(1.15rem * var(--font-scale));
+      font-weight: 700;
+    }
+
+    /* Instruction Box (Large accessible typography) */
+    .instruction-box {
+      background-color: var(--surface-accent);
+      border-left: 8px solid var(--accent-yellow);
+      padding: 24px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .direction-badge {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background-color: var(--accent-yellow);
+      color: var(--accent-yellow-text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .direction-badge svg {
+      width: 36px;
+      height: 36px;
+    }
+    .instruction-content {
+      flex: 1;
+    }
+    .instruction-step-num {
+      font-size: calc(0.9rem * var(--font-scale));
+      font-weight: 800;
+      color: var(--accent-cyan);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 4px;
+    }
+    .instruction-text {
+      font-size: calc(1.4rem * var(--font-scale));
+      font-weight: 800;
+      line-height: 1.35;
+      color: var(--text-primary);
+    }
+
+    /* Progress bar */
+    .progress-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .progress-info {
+      display: flex;
+      justify-content: space-between;
+      font-size: calc(0.95rem * var(--font-scale));
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+    .progress-bar-outer {
+      width: 100%;
+      height: 16px;
+      background-color: var(--surface-accent);
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+    }
+    .progress-bar-inner {
+      height: 100%;
+      width: 0%;
+      background-color: var(--accent-yellow);
+      transition: width var(--transition-speed) ease;
+    }
+
+    /* Navigation Controls Button Bar */
+    .nav-controls-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    /* Audio and Speech Controls */
+    .audio-speech-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      padding-top: 14px;
+      border-top: 1px solid var(--border-color);
+    }
+
+    /* Map Layout */
+    .map-container {
+      background-color: var(--surface-color);
+      border: 2px solid var(--border-color);
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .map-svg-wrap {
+      width: 100%;
+      border-radius: 8px;
+      overflow: hidden;
+      background-color: #060c18;
+      border: 1px solid var(--border-color);
+      touch-action: manipulation;
+    }
+    .map-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      padding: 8px 4px;
+      font-size: calc(0.85rem * var(--font-scale));
+      color: var(--text-muted);
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .legend-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+    }
+
+    /* Step-by-Step Instructions List */
+    .steps-list {
+      list-style-type: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 8px;
+    }
+    .step-item {
+      background-color: var(--surface-color);
+      border: 2px solid var(--border-color);
+      border-radius: 8px;
+      padding: 14px 18px;
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      transition: border-color var(--transition-speed);
+    }
+    .step-item.current {
+      border-color: var(--accent-yellow);
+      background-color: var(--surface-accent);
+      font-weight: bold;
+    }
+    .step-item.visited {
+      opacity: 0.7;
+    }
+    .step-item-num {
+      background-color: var(--surface-accent);
+      color: var(--accent-yellow);
+      border: 1px solid var(--accent-yellow);
+      min-width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 0.9rem;
+      flex-shrink: 0;
+    }
+    .step-item.current .step-item-num {
+      background-color: var(--accent-yellow);
+      color: var(--accent-yellow-text);
+    }
+
+    /* Directional Audio Panel */
+    .audio-test-panel {
+      background-color: var(--surface-color);
+      border: 2px solid var(--border-color);
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .audio-test-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+    }
+    .audio-note {
+      font-size: calc(0.85rem * var(--font-scale));
+      color: var(--text-muted);
+      border-left: 3px solid var(--accent-cyan);
+      padding-left: 12px;
+    }
+
+    /* Dialogs / Modals */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(0, 0, 0, 0.82);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      padding: 20px;
+    }
+    .modal-overlay.active {
+      display: flex;
+    }
+    .modal-content {
+      background-color: var(--surface-color);
+      border: 3px solid var(--border-color);
+      border-radius: 12px;
+      max-width: 640px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      position: relative;
+    }
+    .modal-title {
+      font-size: calc(1.4rem * var(--font-scale));
+      font-weight: 800;
+      color: var(--accent-yellow);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .modal-body {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* Settings form elements */
+    .settings-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 14px;
+    }
+    .settings-group label {
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+    }
+    .settings-group select,
+    .settings-group input[type="range"] {
+      padding: 10px;
+      border-radius: 6px;
+      background-color: var(--surface-accent);
+      border: 2px solid var(--border-color);
+      color: var(--text-primary);
+      font-size: 1rem;
+      min-height: var(--min-touch-target);
+    }
+    .toggle-checkbox {
+      width: 24px;
+      height: 24px;
+      cursor: pointer;
+      accent-color: var(--accent-yellow);
+    }
+
+    /* Footer */
+    footer {
+      background-color: var(--surface-color);
+      border-top: 1px solid var(--border-color);
+      padding: 20px;
+      text-align: center;
+      font-size: calc(0.85rem * var(--font-scale));
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body data-contrast="standard" data-font-size="normal" data-reduced-motion="false">
+  <!-- Accessible Skip Link -->
+  <a href="#main-content" class="skip-link">Skip to Navigation Content</a>
+
+  <!-- ARIA Live Regions for Screen Reader Announcements -->
+  <div id="aria-assertive" class="sr-only" aria-live="assertive" aria-atomic="true"></div>
+  <div id="aria-polite" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- Header -->
+  <header class="app-header" role="banner">
+    <div class="header-top">
+      <div class="brand-container">
+        <!-- Audio-wave logo inline SVG -->
+        <svg class="logo-icon" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <circle cx="50" cy="50" r="46" fill="#0f1c38" stroke="#ffe600" stroke-width="4"/>
+          <path d="M22 50 L28 42 L28 58 L22 50 Z" fill="#ffe600" />
+          <line x1="36" y1="36" x2="36" y2="64" stroke="#ffe600" stroke-width="6" stroke-linecap="round"/>
+          <line x1="46" y1="24" x2="46" y2="76" stroke="#38bdf8" stroke-width="6" stroke-linecap="round"/>
+          <line x1="56" y1="18" x2="56" y2="82" stroke="#ffe600" stroke-width="6" stroke-linecap="round"/>
+          <line x1="66" y1="30" x2="66" y2="70" stroke="#38bdf8" stroke-width="6" stroke-linecap="round"/>
+          <line x1="76" y1="40" x2="76" y2="60" stroke="#ffe600" stroke-width="6" stroke-linecap="round"/>
+        </svg>
+        <div class="brand-titles">
+          <h1>
+            SonicStep AI
+            <span class="badge badge-demo">Demo Mode</span>
+          </h1>
+          <p class="tagline">Hear Your Way. Navigate Independently.</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button id="btn-open-help" class="btn-help" aria-haspopup="dialog" aria-expanded="false">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+          Need Help?
+        </button>
+        <button id="btn-open-settings" class="btn-secondary" aria-haspopup="dialog" aria-expanded="false">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          Settings
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Honest Demo Disclaimer -->
+  <aside class="demo-notice-bar" aria-label="System notice">
+    <p>
+      <strong>Demo Notice:</strong> Predefined railway station simulation. Does not use real indoor positioning, GPS, or camera obstacle recognition.
+    </p>
+  </aside>
+
+  <!-- Main Content -->
+  <main id="main-content" role="main">
+    
+    <!-- 1. Destinations Selection -->
+    <section aria-labelledby="heading-destinations">
+      <h2 id="heading-destinations" class="section-title">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><polygon points="12 8 8 12 12 16 12 8"></polygon></svg>
+        Select Destination
+      </h2>
+      <nav class="destinations-grid" aria-label="Available Station Destinations">
+        <button class="dest-btn" data-dest-id="ticket_counter" aria-pressed="false">
+          <span class="dest-title">1. Ticket Counter</span>
+          <span class="dest-sub">West Concourse &bull; Tickets &amp; Fares</span>
+        </button>
+        <button class="dest-btn" data-dest-id="platform_1" aria-pressed="false">
+          <span class="dest-title">2. Platform 1</span>
+          <span class="dest-sub">North Track &bull; Express Trains</span>
+        </button>
+        <button class="dest-btn" data-dest-id="help_desk" aria-pressed="false">
+          <span class="dest-title">3. Help Desk</span>
+          <span class="dest-sub">East Concourse &bull; Passenger Support</span>
+        </button>
+        <button class="dest-btn" data-dest-id="restroom" aria-pressed="false">
+          <span class="dest-title">4. Accessible Restroom</span>
+          <span class="dest-sub">North East &bull; Step-Free Access</span>
+        </button>
+        <button class="dest-btn" data-dest-id="exit_north" aria-pressed="false">
+          <span class="dest-title">5. Station Exit</span>
+          <span class="dest-sub">North Street Gate &bull; Taxis &amp; Buses</span>
+        </button>
+      </nav>
+    </section>
+
+    <!-- 2. Simulated Hazard Alert Banner -->
+    <div id="hazard-alert-banner" class="hazard-banner" role="alert" aria-live="assertive">
+      <div class="hazard-header">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+        <span id="hazard-title-text">Simulated Hazard Detected</span>
+      </div>
+      <p id="hazard-desc-text">A simulated obstruction was detected along this corridor.</p>
+      <div class="hazard-actions">
+        <button id="btn-use-alternative" class="btn-primary">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 14 4 9 9 4"></polyline><path d="M20 20v-7a4 4 0 0 0-4-4H4"></path></svg>
+          Use Alternative Route
+        </button>
+        <button id="btn-hazard-help" class="btn-help">
+          Request Staff Assistance
+        </button>
+      </div>
+    </div>
+
+    <!-- 3. Active Navigation Card -->
+    <section class="nav-card" aria-labelledby="heading-nav-status">
+      <div class="nav-card-header">
+        <div>
+          <h2 id="heading-nav-status" class="dest-target-text">Destination: None Selected</h2>
+          <p id="route-summary-text" class="dest-sub">Choose a destination above to calculate route.</p>
+        </div>
+        <div id="nav-badge-state" class="badge" style="background-color: var(--surface-accent); color: var(--text-muted);">
+          Ready
+        </div>
+      </div>
+
+      <!-- Current Step Box -->
+      <div class="instruction-box" aria-live="assertive" id="active-instruction-region">
+        <div id="instruction-icon-badge" class="direction-badge" aria-hidden="true">
+          <!-- Default straight icon -->
+          <svg id="dir-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="19" x2="12" y2="5"></line>
+            <polyline points="5 12 12 5 19 12"></polyline>
+          </svg>
+        </div>
+        <div class="instruction-content">
+          <div id="instruction-step-label" class="instruction-step-num">Step 0 of 0</div>
+          <div id="current-instruction-text" class="instruction-text">
+            Select a destination above to start accessible station navigation.
+          </div>
+        </div>
+      </div>
+
+      <!-- Step Progress Bar -->
+      <div class="progress-wrapper">
+        <div class="progress-info">
+          <span id="progress-percentage-label">Progress: 0%</span>
+          <span id="progress-step-count">0 of 0 steps completed</span>
+        </div>
+        <div class="progress-bar-outer" role="progressbar" id="main-progress-bar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Route progress">
+          <div id="progress-fill" class="progress-bar-inner"></div>
+        </div>
+      </div>
+
+      <!-- Navigation Control Buttons -->
+      <div class="nav-controls-bar" role="toolbar" aria-label="Navigation controls">
+        <button id="btn-start-nav" class="btn-primary" disabled>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+          Start Navigation
+        </button>
+        <button id="btn-pause-nav" class="btn-secondary" disabled>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+          Pause
+        </button>
+        <button id="btn-next-step" class="btn-primary" disabled>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          Next Instruction
+        </button>
+        <button id="btn-prev-step" class="btn-secondary" disabled>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"></polyline></svg>
+          Previous
+        </button>
+        <button id="btn-stop-nav" class="btn-outline" disabled>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>
+          Stop &amp; Reset
+        </button>
+      </div>
+
+      <!-- Speech and Audio Toolbar -->
+      <div class="audio-speech-bar" role="toolbar" aria-label="Speech and audio controls">
+        <button id="btn-repeat-speech" class="btn-secondary">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 4v6h6"></path><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
+          Repeat Instruction
+        </button>
+        <button id="btn-toggle-speech" class="btn-secondary" aria-pressed="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+          Speech: ON
+        </button>
+        <button id="btn-toggle-sound" class="btn-secondary" aria-pressed="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg>
+          Directional Chimes: ON
+        </button>
+      </div>
+      <div id="speech-fallback-msg" class="audio-note" style="display:none; color: var(--accent-yellow);">
+        Speech synthesis is not supported in this browser. Step instructions will remain visible as high-contrast text.
+      </div>
+    </section>
+
+    <!-- 4. Interactive Top-Down Station Map -->
+    <section class="map-container" aria-labelledby="heading-station-map">
+      <h2 id="heading-station-map" class="section-title">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg>
+        Station Map &amp; Routing
+      </h2>
+      <div class="map-svg-wrap">
+        <svg id="station-map-svg" viewBox="0 0 800 520" width="100%" height="auto" role="img" aria-label="Predefined Station Corridor Layout and Current Route">
+          <defs>
+            <!-- Pattern for background grid -->
+            <pattern id="station-grid" width="40" height="40" patternUnits="userSpaceOnUse">
+              <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#162544" stroke-width="1"/>
+            </pattern>
+            <!-- Marker for active position pulse -->
+            <filter id="glow-filter" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="4" result="blur" />
+              <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
+          </defs>
+
+          <!-- Background -->
+          <rect width="800" height="520" fill="#070e1e" />
+          <rect width="800" height="520" fill="url(#station-grid)" />
+
+          <!-- Station Building Outer Wall Outline -->
+          <rect x="40" y="20" width="720" height="480" rx="16" fill="none" stroke="#26385e" stroke-width="3" stroke-dasharray="8 6"/>
+
+          <!-- Corridors Group (Thick navigable paths) -->
+          <g id="map-corridors-base" stroke="#1a2e56" stroke-width="24" stroke-linecap="round" stroke-linejoin="round">
+            <!-- Main Spine -->
+            <line x1="400" y1="470" x2="400" y2="50" />
+            <!-- Lower Concourse -->
+            <line x1="200" y1="370" x2="600" y2="370" />
+            <!-- Mid Bypass Corridors -->
+            <line x1="200" y1="370" x2="160" y2="250" />
+            <line x1="160" y1="250" x2="260" y2="150" />
+            <line x1="400" y1="250" x2="260" y2="150" />
+            <line x1="400" y1="250" x2="540" y2="150" />
+            <line x1="600" y1="370" x2="640" y2="250" />
+            <line x1="640" y1="250" x2="540" y2="150" />
+            <!-- Upper Hallways -->
+            <line x1="260" y1="150" x2="160" y2="70" />
+            <line x1="400" y1="150" x2="160" y2="70" />
+            <line x1="400" y1="150" x2="640" y2="70" />
+            <line x1="540" y1="150" x2="640" y2="70" />
+          </g>
+
+          <!-- Active Computed Route Polyline -->
+          <polyline id="map-active-route-line" points="" fill="none" stroke="#ffe600" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="14 8"/>
+
+          <!-- Simulated Hazard Highlights -->
+          <g id="map-hazards-layer"></g>
+
+          <!-- Waypoints / Junctions -->
+          <g id="map-junctions-layer"></g>
+
+          <!-- Destination Rooms / Hubs -->
+          <g id="map-destinations-layer"></g>
+
+          <!-- Start Marker (Station Entrance) -->
+          <g transform="translate(400, 470)">
+            <circle r="16" fill="#22c55e" stroke="#ffffff" stroke-width="3"/>
+            <text y="32" text-anchor="middle" fill="#ffffff" font-size="14" font-weight="bold">Entrance</text>
+          </g>
+
+          <!-- Current User Step Position Marker -->
+          <g id="user-location-marker" transform="translate(400, 470)" filter="url(#glow-filter)" style="display:none;">
+            <circle r="18" fill="#ffe600" opacity="0.35">
+              <animate attributeName="r" values="14;24;14" dur="1.8s" repeatCount="indefinite" />
+              <animate attributeName="opacity" values="0.6;0.1;0.6" dur="1.8s" repeatCount="indefinite" />
+            </circle>
+            <circle r="12" fill="#ffe600" stroke="#070e1e" stroke-width="3"/>
+            <circle r="4" fill="#070e1e"/>
+            <text y="-20" text-anchor="middle" fill="#ffe600" font-size="14" font-weight="900" stroke="#070e1e" stroke-width="3" paint-order="stroke fill">YOU</text>
+          </g>
+        </svg>
+      </div>
+
+      <!-- Map Legend -->
+      <div class="map-legend">
+        <div class="legend-item">
+          <span class="legend-dot" style="background-color: #22c55e;"></span>
+          <span>Start (Main Entrance)</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-dot" style="background-color: #ffe600;"></span>
+          <span>Active Route &amp; Current Step</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-dot" style="background-color: #38bdf8;"></span>
+          <span>Destination Gate</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-dot" style="background-color: #f97316;"></span>
+          <span>Simulated Hazard</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. Step-by-Step Directions Text List -->
+    <section aria-labelledby="heading-instructions-list">
+      <h2 id="heading-instructions-list" class="section-title">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+        Numbered Route Instructions
+      </h2>
+      <ol id="route-steps-ol" class="steps-list" aria-label="Step by step navigation list">
+        <li class="step-item">
+          <span class="step-item-num">0</span>
+          <span>Select any station destination above to generate turn-by-turn guidance.</span>
+        </li>
+      </ol>
+    </section>
+
+    <!-- 6. Directional Audio Testing Panel -->
+    <section class="audio-test-panel" aria-labelledby="heading-directional-audio">
+      <h2 id="heading-directional-audio" class="section-title">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 18v-6a9 9 0 0 1 18 0v6"></path><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path></svg>
+        Directional Audio Soundcheck
+      </h2>
+      <div class="audio-test-grid">
+        <button id="btn-test-left" class="btn-secondary">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"></polyline></svg>
+          Test Left Ear
+        </button>
+        <button id="btn-test-center" class="btn-secondary">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="6"></circle></svg>
+          Test Centre
+        </button>
+        <button id="btn-test-right" class="btn-secondary">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          Test Right Ear
+        </button>
+      </div>
+      <p class="audio-note">
+        <strong>Directional audio note:</strong> Directional audio uses ordinary stereo output and does not guarantee true 3D spatial hearing. Best experienced with headphones or balanced stereo speakers.
+      </p>
+    </section>
+
+  </main>
+
+  <!-- Need Help Modal -->
+  <div id="modal-help" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-help-title">
+    <div class="modal-content">
+      <h2 id="modal-help-title" class="modal-title">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+        Station Staff Assistance
+      </h2>
+      <div class="modal-body">
+        <p>
+          Uniformed station assistants are on duty at the <strong>Help Desk (East Concourse)</strong> and at <strong>Platform 1</strong>.
+        </p>
+        <p>
+          If you need personal guidance, please call out to any nearby station official, or click the button below to guide you straight to the Help Desk.
+        </p>
+        <p class="audio-note">
+          Notice: This application does not place automated emergency phone calls or broadcast external tracking data.
+        </p>
+        <div style="display:flex; flex-direction:column; gap:12px; margin-top:10px;">
+          <button id="btn-help-go-desk" class="btn-primary">
+            Navigate to Help Desk Now
+          </button>
+          <button id="btn-close-help" class="btn-outline">
+            Close Help Panel
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Modal -->
+  <div id="modal-settings" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-settings-title">
+    <div class="modal-content">
+      <h2 id="modal-settings-title" class="modal-title">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        Accessibility &amp; App Settings
+      </h2>
+      <div class="modal-body">
+        
+        <!-- High Contrast -->
+        <div class="settings-group">
+          <label for="setting-contrast">
+            <span>High Contrast Palette:</span>
+            <select id="setting-contrast">
+              <option value="standard">Standard Navy &amp; Yellow</option>
+              <option value="ultra">Ultra Black &amp; Yellow (Max Contrast)</option>
+            </select>
+          </label>
+        </div>
+
+        <!-- Text Size -->
+        <div class="settings-group">
+          <label for="setting-font-size">
+            <span>Text Size:</span>
+            <select id="setting-font-size">
+              <option value="normal">Normal (18px)</option>
+              <option value="large">Large (21px)</option>
+              <option value="xlarge">Extra Large (24px)</option>
+            </select>
+          </label>
+        </div>
+
+        <!-- Speech Toggle -->
+        <div class="settings-group">
+          <label for="setting-speech-toggle">
+            <span>Spoken Instructions (Voice):</span>
+            <input type="checkbox" id="setting-speech-toggle" class="toggle-checkbox" checked>
+          </label>
+        </div>
+
+        <!-- Speech Rate Slider -->
+        <div class="settings-group">
+          <label for="setting-speech-rate">
+            <span>Voice Speed (<span id="speech-rate-display">1.0x</span>):</span>
+          </label>
+          <input type="range" id="setting-speech-rate" min="0.7" max="1.4" step="0.1" value="1.0">
+        </div>
+
+        <!-- Directional Sound Toggle -->
+        <div class="settings-group">
+          <label for="setting-sound-toggle">
+            <span>Directional Audio Cues:</span>
+            <input type="checkbox" id="setting-sound-toggle" class="toggle-checkbox" checked>
+          </label>
+        </div>
+
+        <!-- Reduced Motion -->
+        <div class="settings-group">
+          <label for="setting-reduced-motion">
+            <span>Reduced Motion (Disable animations):</span>
+            <input type="checkbox" id="setting-reduced-motion" class="toggle-checkbox">
+          </label>
+        </div>
+
+        <!-- Simulated Hazards Toggle -->
+        <div class="settings-group">
+          <label for="setting-hazards-toggle">
+            <span>Simulate Station Hazards (For Demo):</span>
+            <input type="checkbox" id="setting-hazards-toggle" class="toggle-checkbox" checked>
+          </label>
+          <p class="audio-note">Toggles simulated maintenance barriers and slippery floor scenarios.</p>
+        </div>
+
+        <button id="btn-close-settings" class="btn-primary" style="margin-top:10px;">
+          Save &amp; Close Settings
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer role="contentinfo">
+    <p>SonicStep AI &bull; Accessible Wayfinding Demonstration &bull; Fully Self-Contained Offline Web App</p>
+  </footer>
+
+  <!-- Vanilla JavaScript Application Logic -->
+  <script>
+    /* ==========================================================================
+       SONICSTEP AI - CORE IN-MEMORY LOGIC & GRAPH ROUTING
+       ========================================================================== */
+
+    // Station Map Graph Definition
+    const STATION_NODES = {
+      entrance:       { id: 'entrance', name: 'Main Station Entrance', x: 400, y: 470, type: 'start' },
+      foyer_junc:     { id: 'foyer_junc', name: 'Entrance Concourse Junction', x: 400, y: 370, type: 'junction' },
+      west_hall:      { id: 'west_hall', name: 'West Concourse Junction', x: 200, y: 370, type: 'junction' },
+      east_hall:      { id: 'east_hall', name: 'East Concourse Junction', x: 600, y: 370, type: 'junction' },
+      ticket_counter: { id: 'ticket_counter', name: 'Ticket Counter', x: 160, y: 250, type: 'destination' },
+      help_desk:      { id: 'help_desk', name: 'Help Desk', x: 640, y: 250, type: 'destination' },
+      central_junc:   { id: 'central_junc', name: 'Central Junction', x: 400, y: 250, type: 'junction' },
+      west_bypass:    { id: 'west_bypass', name: 'West Corridor Junction', x: 260, y: 150, type: 'junction' },
+      east_bypass:    { id: 'east_bypass', name: 'East Corridor Junction', x: 540, y: 150, type: 'junction' },
+      north_hall:     { id: 'north_hall', name: 'North Corridor Junction', x: 400, y: 150, type: 'junction' },
+      platform_1:     { id: 'platform_1', name: 'Platform 1', x: 160, y: 70, type: 'destination' },
+      restroom:       { id: 'restroom', name: 'Accessible Restroom', x: 640, y: 70, type: 'destination' },
+      exit_north:     { id: 'exit_north', name: 'Station Exit', x: 400, y: 50, type: 'destination' }
+    };
+
+    // Graph Edges (with distances in simulated meters)
+    const STATION_EDGES = [
+      { u: 'entrance', v: 'foyer_junc', dist: 30 },
+      { u: 'foyer_junc', v: 'west_hall', dist: 45 },
+      { u: 'foyer_junc', v: 'east_hall', dist: 45 },
+      { u: 'foyer_junc', v: 'central_junc', dist: 40, hazardId: 'hazard_maintenance' },
+      { u: 'west_hall', v: 'ticket_counter', dist: 35 },
+      { u: 'west_hall', v: 'west_bypass', dist: 55 },
+      { u: 'ticket_counter', v: 'west_bypass', dist: 30 },
+      { u: 'central_junc', v: 'west_bypass', dist: 40 },
+      { u: 'central_junc', v: 'east_bypass', dist: 40 },
+      { u: 'central_junc', v: 'north_hall', dist: 35, hazardId: 'hazard_wet_floor' },
+      { u: 'east_hall', v: 'help_desk', dist: 35 },
+      { u: 'east_hall', v: 'east_bypass', dist: 55 },
+      { u: 'help_desk', v: 'east_bypass', dist: 30 },
+      { u: 'west_bypass', v: 'platform_1', dist: 35 },
+      { u: 'north_hall', v: 'platform_1', dist: 55 },
+      { u: 'north_hall', v: 'exit_north', dist: 25 },
+      { u: 'north_hall', v: 'restroom', dist: 55, hazardId: 'hazard_stairs' },
+      { u: 'east_bypass', v: 'restroom', dist: 35 }
+    ];
+
+    // Simulated Hazards Dictionary
+    const HAZARDS = {
+      hazard_maintenance: {
+        id: 'hazard_maintenance',
+        title: 'Maintenance Corridor Closed',
+        desc: 'Corridor maintenance between Entrance Hall and Central Junction. Direct spine blocked.',
+        edge: ['foyer_junc', 'central_junc'],
+        isBlocking: true
+      },
+      hazard_wet_floor: {
+        id: 'hazard_wet_floor',
+        title: 'Slippery Wet Floor',
+        desc: 'Tile cleaning active in central passage. Passage blocked for safety.',
+        edge: ['central_junc', 'north_hall'],
+        isBlocking: true
+      },
+      hazard_stairs: {
+        id: 'hazard_stairs',
+        title: 'Step Repair in Progress',
+        desc: 'Direct corridor to restroom has step maintenance work.',
+        edge: ['north_hall', 'restroom'],
+        isBlocking: true
+      }
+    };
+
+    // In-Memory Application State
+    const AppState = {
+      selectedDestId: null,
+      activeRoute: null,
+      alternativeRoute: null,
+      detectedHazard: null,
+      currentStepIndex: 0,
+      navStatus: 'IDLE', // 'IDLE', 'NAVIGATING', 'PAUSED', 'ARRIVED'
+      speechEnabled: true,
+      speechRate: 1.0,
+      directionalAudioEnabled: true,
+      hazardsEnabled: true,
+      contrastMode: 'standard',
+      fontSize: 'normal',
+      reducedMotion: false
+    };
+
+    /* ==========================================================================
+       WEB AUDIO API - DIRECTIONAL STEREO SOUNDS
+       ========================================================================== */
+    let audioCtx = null;
+
+    function getAudioContext() {
+      if (!audioCtx) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (AudioContextClass) {
+          audioCtx = new AudioContextClass();
+        }
+      }
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
+
+    // Play synthesized tone with StereoPannerNode (-1: Left, 0: Center, 1: Right)
+    function playDirectionalTone(panValue, freq = 660, duration = 0.22, waveType = 'sine') {
+      if (!AppState.directionalAudioEnabled) return;
+      const ctx = getAudioContext();
+      if (!ctx) return;
+
+      try {
+        const osc = ctx.createOscillator();
+        const gainNode = ctx.createGain();
+
+        osc.type = waveType;
+        osc.frequency.setValueAtTime(freq, ctx.currentTime);
+
+        // Anti-click volume envelope
+        gainNode.gain.setValueAtTime(0.001, ctx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.35, ctx.currentTime + 0.03);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+
+        // Check if StereoPannerNode is supported in browser
+        if (typeof ctx.createStereoPanner === 'function') {
+          const panner = ctx.createStereoPanner();
+          panner.pan.setValueAtTime(Math.max(-1, Math.min(1, panValue)), ctx.currentTime);
+          osc.connect(gainNode);
+          gainNode.connect(panner);
+          panner.connect(ctx.destination);
+        } else {
+          // Fallback: connect directly without spatial panning
+          osc.connect(gainNode);
+          gainNode.connect(ctx.destination);
+        }
+
+        osc.start(ctx.currentTime);
+        osc.stop(ctx.currentTime + duration + 0.05);
+      } catch (e) {
+        console.warn('Audio tone error:', e);
+      }
+    }
+
+    // High-level turn cues
+    function playDirectionCue(directionType) {
+      if (!AppState.directionalAudioEnabled) return;
+      if (directionType === 'left') {
+        // Two distinct left chimes (low-to-high) in left ear
+        playDirectionTone(-1, 520, 0.18, 'sine');
+        setTimeout(() => playDirectionTone(-1, 680, 0.22, 'sine'), 130);
+      } else if (directionType === 'right') {
+        // Two distinct right chimes in right ear
+        playDirectionTone(1, 740, 0.18, 'sine');
+        setTimeout(() => playDirectionTone(1, 920, 0.22, 'sine'), 130);
+      } else if (directionType === 'straight') {
+        // Centered warm chime
+        playDirectionTone(0, 600, 0.28, 'triangle');
+      } else if (directionType === 'arrival') {
+        // Melodic arrival chord
+        playDirectionTone(0, 523.25, 0.2, 'sine');
+        setTimeout(() => playDirectionTone(0, 659.25, 0.2, 'sine'), 120);
+        setTimeout(() => playDirectionTone(0, 783.99, 0.35, 'sine'), 240);
+      }
+    }
+
+    /* ==========================================================================
+       WEB SPEECH API & ACCESSIBLE ANNOUNCEMENTS
+       ========================================================================== */
+    function speakText(text, interrupt = true) {
+      if (!AppState.speechEnabled) return;
+      if (!('speechSynthesis' in window)) {
+        const fallback = document.getElementById('speech-fallback-msg');
+        if (fallback) fallback.style.display = 'block';
+        return;
+      }
+      try {
+        if (interrupt) {
+          window.speechSynthesis.cancel();
+        }
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.rate = AppState.speechRate;
+        utterance.pitch = 1.0;
+        utterance.lang = 'en-US';
+        window.speechSynthesis.speak(utterance);
+      } catch (e) {
+        console.warn('Speech synthesis error:', e);
+      }
+    }
+
+    function announceScreenReader(message, priority = 'polite') {
+      const el = document.getElementById(priority === 'assertive' ? 'aria-assertive' : 'aria-polite');
+      if (el) {
+        el.textContent = '';
+        setTimeout(() => {
+          el.textContent = message;
+        }, 50);
+      }
+    }
+
+    /* ==========================================================================
+       ROUTING ALGORITHM: DIJKSTRA / BFS SHORTEST PATH
+       ========================================================================== */
+    function calculateShortestPath(startNodeId, targetNodeId, blockedHazardIds = new Set()) {
+      const distances = {};
+      const previous = {};
+      const unvisited = new Set();
+
+      Object.keys(STATION_NODES).forEach(nodeId => {
+        distances[nodeId] = Infinity;
+        previous[nodeId] = null;
+        unvisited.add(nodeId);
+      });
+      distances[startNodeId] = 0;
+
+      while (unvisited.size > 0) {
+        // Find node with minimum distance
+        let current = null;
+        let minDistance = Infinity;
+        for (const nodeId of unvisited) {
+          if (distances[nodeId] < minDistance) {
+            minDistance = distances[nodeId];
+            current = nodeId;
+          }
+        }
+
+        if (current === null || distances[current] === Infinity) break;
+        if (current === targetNodeId) break;
+
+        unvisited.delete(current);
+
+        // Find neighbors
+        STATION_EDGES.forEach(edge => {
+          let neighbor = null;
+          if (edge.u === current) neighbor = edge.v;
+          else if (edge.v === current) neighbor = edge.u;
+
+          if (neighbor && unvisited.has(neighbor)) {
+            // Check if this edge is blocked by simulated hazard
+            if (edge.hazardId && blockedHazardIds.has(edge.hazardId)) {
+              return; // Skip blocked edge
+            }
+            const alt = distances[current] + edge.dist;
+            if (alt < distances[neighbor]) {
+              distances[neighbor] = alt;
+              previous[neighbor] = current;
+            }
+          }
+        });
+      }
+
+      // Reconstruct path
+      const path = [];
+      let curr = targetNodeId;
+      while (curr) {
+        path.unshift(curr);
+        curr = previous[curr];
+      }
+
+      if (path.length > 0 && path[0] === startNodeId) {
+        return path;
+      }
+      return null; // No route found
+    }
+
+    /* ==========================================================================
+       TURN DERIVATION & NATURAL INSTRUCTIONS BUILDER
+       ========================================================================== */
+    function deriveTurnType(v1, v2) {
+      // Calculate angle change in degrees
+      const angle1 = Math.atan2(v1.y, v1.x);
+      const angle2 = Math.atan2(v2.y, v2.x);
+      let diff = (angle2 - angle1) * 180 / Math.PI;
+
+      while (diff > 180) diff -= 360;
+      while (diff < -180) diff += 360;
+
+      // In SVG coordinates where Y points down:
+      // Positive diff is a clockwise rotation (Turn Right)
+      // Negative diff is counter-clockwise rotation (Turn Left)
+      if (Math.abs(diff) <= 32) return 'straight';
+      if (diff > 32) return 'right';
+      return 'left';
+    }
+
+    function buildRouteInstructions(pathNodeIds, destName) {
+      if (!pathNodeIds || pathNodeIds.length === 0) return [];
+      const instructions = [];
+
+      // Initial user orientation at entrance: facing forward/North (0, -1)
+      let currentFacingVector = { x: 0, y: -1 };
+
+      for (let i = 0; i < pathNodeIds.length - 1; i++) {
+        const fromNode = STATION_NODES[pathNodeIds[i]];
+        const toNode = STATION_NODES[pathNodeIds[i + 1]];
+
+        const stepVector = {
+          x: toNode.x - fromNode.x,
+          y: toNode.y - fromNode.y
+        };
+
+        const turn = deriveTurnType(currentFacingVector, stepVector);
+        currentFacingVector = stepVector;
+
+        let actionPhrase = "";
+        if (i === 0) {
+          actionPhrase = `Proceed forward from ${fromNode.name} towards ${toNode.name}.`;
+        } else if (turn === 'left') {
+          actionPhrase = `Turn left and continue towards ${toNode.name}.`;
+        } else if (turn === 'right') {
+          actionPhrase = `Turn right and continue towards ${toNode.name}.`;
+        } else {
+          actionPhrase = `Continue straight along the corridor towards ${toNode.name}.`;
+        }
+
+        instructions.push({
+          stepIndex: i,
+          fromNodeId: fromNode.id,
+          toNodeId: toNode.id,
+          turnType: turn,
+          nodeName: toNode.name,
+          text: actionPhrase,
+          coord: { x: fromNode.x, y: fromNode.y }
+        });
+      }
+
+      // Final arrival step
+      const lastNode = STATION_NODES[pathNodeIds[pathNodeIds.length - 1]];
+      instructions.push({
+        stepIndex: instructions.length,
+        fromNodeId: lastNode.id,
+        toNodeId: lastNode.id,
+        turnType: 'arrival',
+        nodeName: lastNode.name,
+        text: `You have arrived at ${destName}.`,
+        coord: { x: lastNode.x, y: lastNode.y }
+      });
+
+      return instructions;
+    }
+
+    // Detect if a route passes through an active hazard
+    function checkRouteForHazard(pathNodeIds) {
+      if (!AppState.hazardsEnabled || !pathNodeIds) return null;
+      for (let i = 0; i < pathNodeIds.length - 1; i++) {
+        const u = pathNodeIds[i];
+        const v = pathNodeIds[i + 1];
+        const edge = STATION_EDGES.find(e => (e.u === u && e.v === v) || (e.u === v && e.v === u));
+        if (edge && edge.hazardId && HAZARDS[edge.hazardId]) {
+          return HAZARDS[edge.hazardId];
+        }
+      }
+      return null;
+    }
+
+    /* ==========================================================================
+       MAP SVG RENDERING & VISUAL HIGHLIGHTS
+       ========================================================================== */
+    function renderMapInfrastructure() {
+      const junctionsLayer = document.getElementById('map-junctions-layer');
+      const destinationsLayer = document.getElementById('map-destinations-layer');
+      if (!junctionsLayer || !destinationsLayer) return;
+
+      junctionsLayer.innerHTML = '';
+      destinationsLayer.innerHTML = '';
+
+      Object.values(STATION_NODES).forEach(node => {
+        if (node.type === 'junction') {
+          const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+          circle.setAttribute('cx', node.x);
+          circle.setAttribute('cy', node.y);
+          circle.setAttribute('r', '8');
+          circle.setAttribute('fill', '#26385e');
+          circle.setAttribute('stroke', '#38bdf8');
+          circle.setAttribute('stroke-width', '2');
+          junctionsLayer.appendChild(circle);
+        } else if (node.type === 'destination') {
+          const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+          g.setAttribute('transform', `translate(${node.x}, ${node.y})`);
+
+          const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+          rect.setAttribute('x', '-24');
+          rect.setAttribute('y', '-24');
+          rect.setAttribute('width', '48');
+          rect.setAttribute('height', '48');
+          rect.setAttribute('rx', '8');
+          rect.setAttribute('fill', '#101c38');
+          rect.setAttribute('stroke', '#38bdf8');
+          rect.setAttribute('stroke-width', '3');
+
+          const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          text.setAttribute('y', '36');
+          text.setAttribute('text-anchor', 'middle');
+          text.setAttribute('fill', '#ffffff');
+          text.setAttribute('font-size', '13');
+          text.setAttribute('font-weight', 'bold');
+          text.textContent = node.name;
+
+          g.appendChild(rect);
+          g.appendChild(text);
+          destinationsLayer.appendChild(g);
+        }
+      });
+    }
+
+    function renderMapHazards() {
+      const hazardsLayer = document.getElementById('map-hazards-layer');
+      if (!hazardsLayer) return;
+      hazardsLayer.innerHTML = '';
+
+      if (!AppState.hazardsEnabled) return;
+
+      Object.values(HAZARDS).forEach(hazard => {
+        const u = STATION_NODES[hazard.edge[0]];
+        const v = STATION_NODES[hazard.edge[1]];
+        if (!u || !v) return;
+
+        const mx = (u.x + v.x) / 2;
+        const my = (u.y + v.y) / 2;
+
+        const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        g.setAttribute('transform', `translate(${mx}, ${my})`);
+
+        // Hazard warning sign
+        const poly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+        poly.setAttribute('points', '0,-14 14,12 -14,12');
+        poly.setAttribute('fill', '#f97316');
+        poly.setAttribute('stroke', '#ffffff');
+        poly.setAttribute('stroke-width', '2');
+
+        const excl = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        excl.setAttribute('y', '8');
+        excl.setAttribute('text-anchor', 'middle');
+        excl.setAttribute('fill', '#000000');
+        excl.setAttribute('font-size', '13');
+        excl.setAttribute('font-weight', '900');
+        excl.textContent = '!';
+
+        g.appendChild(poly);
+        g.appendChild(excl);
+        hazardsLayer.appendChild(g);
+      });
+    }
+
+    function updateMapRouteVisual(pathNodeIds, currentStepCoord = null) {
+      const routeLine = document.getElementById('map-active-route-line');
+      const userMarker = document.getElementById('user-location-marker');
+
+      if (!routeLine || !userMarker) return;
+
+      if (!pathNodeIds || pathNodeIds.length === 0) {
+        routeLine.setAttribute('points', '');
+        userMarker.style.display = 'none';
+        return;
+      }
+
+      // Build points string for polyline
+      const pts = pathNodeIds.map(id => {
+        const node = STATION_NODES[id];
+        return `${node.x},${node.y}`;
+      }).join(' ');
+
+      routeLine.setAttribute('points', pts);
+
+      // Position current user step marker
+      if (currentStepCoord) {
+        userMarker.setAttribute('transform', `translate(${currentStepCoord.x}, ${currentStepCoord.y})`);
+        userMarker.style.display = 'inline';
+      } else {
+        const start = STATION_NODES[pathNodeIds[0]];
+        userMarker.setAttribute('transform', `translate(${start.x}, ${start.y})`);
+        userMarker.style.display = 'inline';
+      }
+    }
+
+    /* ==========================================================================
+       USER INTERFACE RENDERING & STATE SYNCHRONIZATION
+       ========================================================================== */
+    function updateUI() {
+      const targetLabel = document.getElementById('heading-nav-status');
+      const summaryLabel = document.getElementById('route-summary-text');
+      const stateBadge = document.getElementById('nav-badge-state');
+      const stepLabel = document.getElementById('instruction-step-label');
+      const textElem = document.getElementById('current-instruction-text');
+      const iconBadge = document.getElementById('instruction-icon-badge');
+      const progressBar = document.getElementById('main-progress-bar');
+      const progressFill = document.getElementById('progress-fill');
+      const progressPercentLabel = document.getElementById('progress-percentage-label');
+      const progressCountLabel = document.getElementById('progress-step-count');
+
+      const btnStart = document.getElementById('btn-start-nav');
+      const btnPause = document.getElementById('btn-pause-nav');
+      const btnNext = document.getElementById('btn-next-step');
+      const btnPrev = document.getElementById('btn-prev-step');
+      const btnStop = document.getElementById('btn-stop-nav');
+
+      const hazardBanner = document.getElementById('hazard-alert-banner');
+      const hazardTitle = document.getElementById('hazard-title-text');
+      const hazardDesc = document.getElementById('hazard-desc-text');
+
+      // Update Destination Buttons Active Style
+      document.querySelectorAll('.dest-btn').forEach(btn => {
+        const isSelected = btn.getAttribute('data-dest-id') === AppState.selectedDestId;
+        btn.classList.toggle('active', isSelected);
+        btn.setAttribute('aria-pressed', isSelected ? 'true' : 'false');
+      });
+
+      // No destination selected
+      if (!AppState.selectedDestId || !AppState.activeRoute) {
+        targetLabel.textContent = "Destination: None Selected";
+        summaryLabel.textContent = "Choose a destination above to calculate route.";
+        stateBadge.textContent = "Ready";
+        stateBadge.style.backgroundColor = "var(--surface-accent)";
+        stateBadge.style.color = "var(--text-muted)";
+
+        stepLabel.textContent = "Step 0 of 0";
+        textElem.textContent = "Select a destination above to start accessible station navigation.";
+        updateIconBadge('straight');
+
+        progressBar.setAttribute('aria-valuenow', '0');
+        progressFill.style.width = '0%';
+        progressPercentLabel.textContent = "Progress: 0%";
+        progressCountLabel.textContent = "0 of 0 steps completed";
+
+        btnStart.disabled = true;
+        btnPause.disabled = true;
+        btnNext.disabled = true;
+        btnPrev.disabled = true;
+        btnStop.disabled = true;
+
+        hazardBanner.classList.remove('visible');
+        renderStepsList([]);
+        updateMapRouteVisual(null);
+        return;
+      }
+
+      const dest = STATION_NODES[AppState.selectedDestId];
+      const instructions = AppState.activeRoute.instructions;
+      const totalSteps = instructions.length;
+      const currIdx = AppState.currentStepIndex;
+      const currentInst = instructions[currIdx] || instructions[0];
+
+      targetLabel.textContent = `Destination: ${dest.name}`;
+      summaryLabel.textContent = `Route: ${AppState.activeRoute.path.length} waypoints &bull; Total distance approx. ${AppState.activeRoute.totalDist}m`;
+
+      // Navigation Status Controls State
+      if (AppState.navStatus === 'IDLE') {
+        stateBadge.textContent = "Route Ready";
+        stateBadge.style.backgroundColor = "var(--accent-yellow)";
+        stateBadge.style.color = "var(--accent-yellow-text)";
+
+        btnStart.disabled = false;
+        btnStart.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> Start Navigation`;
+        btnPause.disabled = true;
+        btnNext.disabled = true;
+        btnPrev.disabled = true;
+        btnStop.disabled = false;
+      } else if (AppState.navStatus === 'NAVIGATING') {
+        stateBadge.textContent = "Navigating";
+        stateBadge.style.backgroundColor = "var(--accent-cyan)";
+        stateBadge.style.color = "#000000";
+
+        btnStart.disabled = true;
+        btnPause.disabled = false;
+        btnPause.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg> Pause`;
+        btnNext.disabled = currIdx >= totalSteps - 1;
+        btnPrev.disabled = currIdx <= 0;
+        btnStop.disabled = false;
+      } else if (AppState.navStatus === 'PAUSED') {
+        stateBadge.textContent = "Paused";
+        stateBadge.style.backgroundColor = "#eab308";
+        stateBadge.style.color = "#000000";
+
+        btnStart.disabled = true;
+        btnPause.disabled = false;
+        btnPause.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> Resume`;
+        btnNext.disabled = currIdx >= totalSteps - 1;
+        btnPrev.disabled = currIdx <= 0;
+        btnStop.disabled = false;
+      } else if (AppState.navStatus === 'ARRIVED') {
+        stateBadge.textContent = "Arrived";
+        stateBadge.style.backgroundColor = "var(--accent-green)";
+        stateBadge.style.color = "#000000";
+
+        btnStart.disabled = true;
+        btnPause.disabled = true;
+        btnNext.disabled = true;
+        btnPrev.disabled = false;
+        btnStop.disabled = false;
+      }
+
+      // Step instruction and icon
+      stepLabel.textContent = `Step ${currIdx + 1} of ${totalSteps}`;
+      textElem.textContent = currentInst.text;
+      updateIconBadge(currentInst.turnType);
+
+      // Progress bar calculations
+      const progressPercent = Math.round(((currIdx + 1) / totalSteps) * 100);
+      progressBar.setAttribute('aria-valuenow', progressPercent);
+      progressFill.style.width = `${progressPercent}%`;
+      progressPercentLabel.textContent = `Progress: ${progressPercent}%`;
+      progressCountLabel.textContent = `${currIdx + 1} of ${totalSteps} steps completed`;
+
+      // Hazard warning banner update
+      if (AppState.detectedHazard) {
+        hazardBanner.classList.add('visible');
+        hazardTitle.textContent = `Simulated Hazard: ${AppState.detectedHazard.title}`;
+        hazardDesc.textContent = `${AppState.detectedHazard.desc} An alternative route avoiding this section has been computed.`;
+      } else {
+        hazardBanner.classList.remove('visible');
+      }
+
+      // Synchronize Map and Ordered list
+      renderStepsList(instructions, currIdx);
+      updateMapRouteVisual(AppState.activeRoute.path, currentInst.coord);
+    }
+
+    function updateIconBadge(turnType) {
+      const badge = document.getElementById('instruction-icon-badge');
+      if (!badge) return;
+
+      let svgPath = '';
+      if (turnType === 'left') {
+        svgPath = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 14 4 9 9 4"></polyline><path d="M20 20v-7a4 4 0 0 0-4-4H4"></path></svg>`;
+      } else if (turnType === 'right') {
+        svgPath = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 14 20 9 15 4"></polyline><path d="M4 20v-7a4 4 0 0 1 4-4h12"></path></svg>`;
+      } else if (turnType === 'arrival') {
+        svgPath = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`;
+      } else {
+        // Straight
+        svgPath = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>`;
+      }
+      badge.innerHTML = svgPath;
+    }
+
+    function renderStepsList(instructions, activeIdx = 0) {
+      const list = document.getElementById('route-steps-ol');
+      if (!list) return;
+
+      if (!instructions || instructions.length === 0) {
+        list.innerHTML = `
+          <li class="step-item">
+            <span class="step-item-num">0</span>
+            <span>Select any station destination above to generate turn-by-turn guidance.</span>
+          </li>`;
+        return;
+      }
+
+      list.innerHTML = '';
+      instructions.forEach((inst, index) => {
+        const li = document.createElement('li');
+        li.className = 'step-item';
+        if (index === activeIdx) li.classList.add('current');
+        if (index < activeIdx) li.classList.add('visited');
+
+        const num = document.createElement('span');
+        num.className = 'step-item-num';
+        num.textContent = index + 1;
+
+        const text = document.createElement('span');
+        text.textContent = inst.text;
+
+        li.appendChild(num);
+        li.appendChild(text);
+        list.appendChild(li);
+      });
+    }
+
+    /* ==========================================================================
+       ROUTING ENGINE CONTROLLER
+       ========================================================================== */
+    function setDestination(destId, announceChange = true) {
+      if (!STATION_NODES[destId]) return;
+
+      AppState.selectedDestId = destId;
+      AppState.currentStepIndex = 0;
+      AppState.navStatus = 'IDLE';
+
+      const dest = STATION_NODES[destId];
+
+      // 1. Calculate primary path without blocking hazards
+      const primaryPath = calculateShortestPath('entrance', destId, new Set());
+
+      if (!primaryPath) {
+        announceScreenReader(`No route available to ${dest.name}. Please contact assistance.`, 'assertive');
+        return;
+      }
+
+      // Check if primary path crosses an active hazard
+      const detectedHazard = checkRouteForHazard(primaryPath);
+      AppState.detectedHazard = detectedHazard;
+
+      let totalDist = 0;
+      for (let i = 0; i < primaryPath.length - 1; i++) {
+        const edge = STATION_EDGES.find(e => (e.u === primaryPath[i] && e.v === primaryPath[i + 1]) || (e.u === primaryPath[i + 1] && e.v === primaryPath[i]));
+        if (edge) totalDist += edge.dist;
+      }
+
+      const instructions = buildRouteInstructions(primaryPath, dest.name);
+      AppState.activeRoute = {
+        path: primaryPath,
+        totalDist: totalDist,
+        instructions: instructions,
+        isAlternative: false
+      };
+
+      // 2. Pre-calculate alternative route in case hazard is encountered
+      if (detectedHazard) {
+        const blockedSet = new Set([detectedHazard.id]);
+        const altPath = calculateShortestPath('entrance', destId, blockedSet);
+        if (altPath && altPath.join(',') !== primaryPath.join(',')) {
+          let altDist = 0;
+          for (let i = 0; i < altPath.length - 1; i++) {
+            const edge = STATION_EDGES.find(e => (e.u === altPath[i] && e.v === altPath[i + 1]) || (e.u === altPath[i + 1] && e.v === altPath[i]));
+            if (edge) altDist += edge.dist;
+          }
+          AppState.alternativeRoute = {
+            path: altPath,
+            totalDist: altDist,
+            instructions: buildRouteInstructions(altPath, dest.name),
+            isAlternative: true
+          };
+        } else {
+          AppState.alternativeRoute = null;
+        }
+      } else {
+        AppState.alternativeRoute = null;
+      }
+
+      updateUI();
+
+      if (announceChange) {
+        const confirmMsg = `Destination set to ${dest.name}. Route calculated with ${instructions.length} steps. Press Start Navigation to begin.`;
+        speakText(confirmMsg);
+        announceScreenReader(confirmMsg, 'polite');
+
+        if (detectedHazard) {
+          setTimeout(() => {
+            const warningMsg = `Warning: A simulated hazard, ${detectedHazard.title}, is present along the direct corridor. An alternative detour route is ready.`;
+            speakText(warningMsg);
+            announceScreenReader(warningMsg, 'assertive');
+          }, 2400);
+        }
+      }
+    }
+
+    function applyAlternativeRoute() {
+      if (!AppState.alternativeRoute) {
+        speakText("No safe alternative detour exists for this destination. Please stop and request station staff assistance.");
+        announceScreenReader("No alternative route exists. Please request staff assistance.", 'assertive');
+        return;
+      }
+
+      AppState.activeRoute = AppState.alternativeRoute;
+      AppState.detectedHazard = null;
+      AppState.currentStepIndex = 0;
+
+      updateUI();
+
+      const msg = "Alternative safe detour applied, avoiding simulated hazard corridor. Press Start Navigation to proceed.";
+      speakText(msg);
+      announceScreenReader(msg, 'polite');
+      playDirectionCue('straight');
+    }
+
+    /* ==========================================================================
+       NAVIGATION LIFECYCLE & STEP ADVANCEMENT
+       ========================================================================== */
+    function startNavigation() {
+      if (!AppState.activeRoute) return;
+      AppState.navStatus = 'NAVIGATING';
+      AppState.currentStepIndex = 0;
+      updateUI();
+      announceCurrentStep();
+    }
+
+    function pauseNavigation() {
+      if (AppState.navStatus === 'NAVIGATING') {
+        AppState.navStatus = 'PAUSED';
+        updateUI();
+        speakText("Navigation paused.");
+        announceScreenReader("Navigation paused.", 'polite');
+      } else if (AppState.navStatus === 'PAUSED') {
+        AppState.navStatus = 'NAVIGATING';
+        updateUI();
+        speakText("Navigation resumed.");
+        announceScreenReader("Navigation resumed.", 'polite');
+        announceCurrentStep();
+      }
+    }
+
+    function nextStep() {
+      if (!AppState.activeRoute) return;
+      if (AppState.currentStepIndex < AppState.activeRoute.instructions.length - 1) {
+        AppState.currentStepIndex++;
+        if (AppState.currentStepIndex === AppState.activeRoute.instructions.length - 1) {
+          AppState.navStatus = 'ARRIVED';
+        } else {
+          AppState.navStatus = 'NAVIGATING';
+        }
+        updateUI();
+        announceCurrentStep();
+      }
+    }
+
+    function prevStep() {
+      if (!AppState.activeRoute) return;
+      if (AppState.currentStepIndex > 0) {
+        AppState.currentStepIndex--;
+        AppState.navStatus = 'NAVIGATING';
+        updateUI();
+        announceCurrentStep();
+      }
+    }
+
+    function stopNavigation() {
+      AppState.navStatus = 'IDLE';
+      AppState.currentStepIndex = 0;
+      updateUI();
+      speakText("Navigation stopped.");
+      announceScreenReader("Navigation stopped.", 'polite');
+    }
+
+    function announceCurrentStep() {
+      if (!AppState.activeRoute) return;
+      const step = AppState.activeRoute.instructions[AppState.currentStepIndex];
+      if (!step) return;
+
+      // 1. Play Directional stereo chime
+      playDirectionCue(step.turnType);
+
+      // 2. Speak concise instruction
+      speakText(step.text);
+
+      // 3. Update screen reader live region
+      announceScreenReader(step.text, 'assertive');
+    }
+
+    function repeatCurrentStep() {
+      if (!AppState.activeRoute) {
+        speakText("No active destination selected. Please select a destination button above.");
+        return;
+      }
+      announceCurrentStep();
+    }
+
+    /* ==========================================================================
+       EVENT LISTENERS & ACCESSIBILITY HANDLERS
+       ========================================================================== */
+    document.addEventListener('DOMContentLoaded', () => {
+      // 1. Render Map Static Elements
+      renderMapInfrastructure();
+      renderMapHazards();
+
+      // 2. Destination Buttons
+      document.querySelectorAll('.dest-btn').forEach(button => {
+        button.addEventListener('click', () => {
+          const destId = button.getAttribute('data-dest-id');
+          setDestination(destId, true);
+        });
+      });
+
+      // 3. Navigation Controls
+      document.getElementById('btn-start-nav').addEventListener('click', startNavigation);
+      document.getElementById('btn-pause-nav').addEventListener('click', pauseNavigation);
+      document.getElementById('btn-next-step').addEventListener('click', nextStep);
+      document.getElementById('btn-prev-step').addEventListener('click', prevStep);
+      document.getElementById('btn-stop-nav').addEventListener('click', stopNavigation);
+
+      // 4. Speech and Audio Buttons
+      document.getElementById('btn-repeat-speech').addEventListener('click', repeatCurrentStep);
+
+      const btnToggleSpeech = document.getElementById('btn-toggle-speech');
+      btnToggleSpeech.addEventListener('click', () => {
+        AppState.speechEnabled = !AppState.speechEnabled;
+        btnToggleSpeech.setAttribute('aria-pressed', AppState.speechEnabled ? 'true' : 'false');
+        btnToggleSpeech.textContent = AppState.speechEnabled ? "Speech: ON" : "Speech: MUTED";
+        document.getElementById('setting-speech-toggle').checked = AppState.speechEnabled;
+        if (AppState.speechEnabled) {
+          speakText("Speech guidance unmuted.");
+        } else {
+          window.speechSynthesis && window.speechSynthesis.cancel();
+        }
+      });
+
+      const btnToggleSound = document.getElementById('btn-toggle-sound');
+      btnToggleSound.addEventListener('click', () => {
+        AppState.directionalAudioEnabled = !AppState.directionalAudioEnabled;
+        btnToggleSound.setAttribute('aria-pressed', AppState.directionalAudioEnabled ? 'true' : 'false');
+        btnToggleSound.textContent = AppState.directionalAudioEnabled ? "Directional Chimes: ON" : "Directional Chimes: OFF";
+        document.getElementById('setting-sound-toggle').checked = AppState.directionalAudioEnabled;
+        if (AppState.directionalAudioEnabled) {
+          playDirectionCue('straight');
+        }
+      });
+
+      // 5. Hazard Banner Buttons
+      document.getElementById('btn-use-alternative').addEventListener('click', applyAlternativeRoute);
+      document.getElementById('btn-hazard-help').addEventListener('click', () => {
+        openModal('modal-help');
+      });
+
+      // 6. Directional Audio Soundcheck Buttons
+      document.getElementById('btn-test-left').addEventListener('click', () => {
+        playDirectionalTone(-1, 520, 0.25, 'sine');
+        setTimeout(() => playDirectionalTone(-1, 680, 0.25, 'sine'), 140);
+        speakText("Left channel test.");
+      });
+      document.getElementById('btn-test-center').addEventListener('click', () => {
+        playDirectionalTone(0, 660, 0.35, 'triangle');
+        speakText("Centre channel test.");
+      });
+      document.getElementById('btn-test-right').addEventListener('click', () => {
+        playDirectionalTone(1, 740, 0.25, 'sine');
+        setTimeout(() => playDirectionalTone(1, 920, 0.25, 'sine'), 140);
+        speakText("Right channel test.");
+      });
+
+      // 7. Modals: Help & Settings
+      const modalHelp = document.getElementById('modal-help');
+      const modalSettings = document.getElementById('modal-settings');
+      let previousActiveElement = null;
+
+      function openModal(modalId) {
+        previousActiveElement = document.activeElement;
+        const modal = document.getElementById(modalId);
+        if (modal) {
+          modal.classList.add('active');
+          const firstFocusable = modal.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+          if (firstFocusable) firstFocusable.focus();
+        }
+      }
+
+      function closeModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+          modal.classList.remove('active');
+          if (previousActiveElement) previousActiveElement.focus();
+        }
+      }
+
+      document.getElementById('btn-open-help').addEventListener('click', () => openModal('modal-help'));
+      document.getElementById('btn-close-help').addEventListener('click', () => closeModal('modal-help'));
+      document.getElementById('btn-help-go-desk').addEventListener('click', () => {
+        closeModal('modal-help');
+        setDestination('help_desk', true);
+        startNavigation();
+      });
+
+      document.getElementById('btn-open-settings').addEventListener('click', () => openModal('modal-settings'));
+      document.getElementById('btn-close-settings').addEventListener('click', () => closeModal('modal-settings'));
+
+      // Close modal on escape key
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          if (modalHelp.classList.contains('active')) closeModal('modal-help');
+          if (modalSettings.classList.contains('active')) closeModal('modal-settings');
+        }
+      });
+
+      // 8. Settings Form Controls
+      const settingContrast = document.getElementById('setting-contrast');
+      settingContrast.addEventListener('change', (e) => {
+        AppState.contrastMode = e.target.value;
+        document.body.setAttribute('data-contrast', AppState.contrastMode);
+      });
+
+      const settingFontSize = document.getElementById('setting-font-size');
+      settingFontSize.addEventListener('change', (e) => {
+        AppState.fontSize = e.target.value;
+        document.body.setAttribute('data-font-size', AppState.fontSize);
+      });
+
+      const settingSpeech = document.getElementById('setting-speech-toggle');
+      settingSpeech.addEventListener('change', (e) => {
+        AppState.speechEnabled = e.target.checked;
+        btnToggleSpeech.setAttribute('aria-pressed', AppState.speechEnabled ? 'true' : 'false');
+        btnToggleSpeech.textContent = AppState.speechEnabled ? "Speech: ON" : "Speech: MUTED";
+      });
+
+      const settingSpeechRate = document.getElementById('setting-speech-rate');
+      const speechRateDisplay = document.getElementById('speech-rate-display');
+      settingSpeechRate.addEventListener('input', (e) => {
+        AppState.speechRate = parseFloat(e.target.value);
+        speechRateDisplay.textContent = `${AppState.speechRate.toFixed(1)}x`;
+      });
+
+      const settingSound = document.getElementById('setting-sound-toggle');
+      settingSound.addEventListener('change', (e) => {
+        AppState.directionalAudioEnabled = e.target.checked;
+        btnToggleSound.setAttribute('aria-pressed', AppState.directionalAudioEnabled ? 'true' : 'false');
+        btnToggleSound.textContent = AppState.directionalAudioEnabled ? "Directional Chimes: ON" : "Directional Chimes: OFF";
+      });
+
+      const settingReducedMotion = document.getElementById('setting-reduced-motion');
+      settingReducedMotion.addEventListener('change', (e) => {
+        AppState.reducedMotion = e.target.checked;
+        document.body.setAttribute('data-reduced-motion', AppState.reducedMotion ? 'true' : 'false');
+      });
+
+      const settingHazards = document.getElementById('setting-hazards-toggle');
+      settingHazards.addEventListener('change', (e) => {
+        AppState.hazardsEnabled = e.target.checked;
+        renderMapHazards();
+        // Recalculate route if destination is active
+        if (AppState.selectedDestId) {
+          setDestination(AppState.selectedDestId, false);
+        }
+      });
+
+      // Initial UI state setup
+      updateUI();
+    });
+  </script>
+</body>
+</html>
